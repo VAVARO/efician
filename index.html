@@ -313,6 +313,107 @@
       50% { transform: scale(1.35); }
       100% { transform: scale(1); }
     }
+
+    /* ============================================================= */
+    /* ESTILOS DE IMPRESIÓN / EXPORTACIÓN A PDF VECTORIAL (A4)       */
+    /* ============================================================= */
+    @media print {
+      /* Ocultar elementos irrelevantes de la página */
+      header,
+      footer,
+      nav,
+      #view-inicio,
+      #view-shop,
+      #view-calculadora,
+      #view-servicios,
+      #view-info,
+      #view-nosotros,
+      #faq-bot-window,
+      .fixed,
+      #checkout-backdrop,
+      #checkout-modal,
+      #order-success-backdrop,
+      #order-success-modal,
+      #cart-drawer,
+      #cart-drawer-backdrop,
+      #lead-report-toolbar,
+      .no-print {
+        display: none !important;
+      }
+
+      /* Configuración estricta de página A4 con márgenes de ingeniería */
+      @page {
+        size: A4 portrait;
+        margin: 8mm 10mm;
+      }
+
+      html, body {
+        background: #FFFFFF !important;
+        color: #0F172A !important;
+        font-size: 8.5pt !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* El modal se transforma en documento plano de impresión */
+      #lead-report-modal {
+        position: static !important;
+        display: block !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        overflow: visible !important;
+        z-index: auto !important;
+      }
+
+      #lead-report-modal > div {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+      }
+
+      #lead-report-document {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      .print-avoid-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .print-page-break {
+        page-break-before: always !important;
+        break-before: always !important;
+      }
+
+      /* Ajuste fino de tablas y fuentes en impresión */
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+      }
+
+      th, td {
+        padding: 3px 5px !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
@@ -2204,115 +2305,303 @@
   <!-- ================================================================= -->
   <!-- MODAL DE REPORTE COMPLETO DE FACTIBILIDAD SOLAR (LEAD MAGNET)     -->
   <!-- ================================================================= -->
-  <div id="lead-report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 modal-hidden flex items-center justify-center p-4" onclick="closeLeadReportModal(event)">
-    <div class="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+  <div id="lead-report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[9999] modal-hidden flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto" onclick="closeLeadReportModal(event)">
+    <div class="bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col my-auto max-h-[95vh]" onclick="event.stopPropagation()">
       
-      <!-- Encabezado del Modal -->
-      <div class="flex justify-between items-start pb-4 border-b border-slate-100">
-        <div>
-          <div class="flex items-center gap-1.5 text-sky-600 font-mono text-[11px] font-semibold uppercase tracking-wider mb-1">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Dossier Técnico Efician Patagonia</span>
+      <!-- Barra de Herramientas Superior (Oculta en Impresión) -->
+      <div id="lead-report-toolbar" class="p-3 sm:p-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+          <div>
+            <h4 class="font-headline font-bold text-sm text-white leading-tight">Dossier Técnico // Pre-Dimensionamiento Fotovoltaico</h4>
+            <span class="text-[10px] text-slate-400 font-mono">Memoria de Ingeniería // Exportable a PDF A4</span>
           </div>
-          <h3 class="font-headline font-bold text-xl sm:text-2xl text-slate-900">
-            Reporte de Factibilidad Solar
-          </h3>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="exportDossierToPDF()" class="px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-semibold flex items-center gap-1.5 btn-tactile shadow-sm transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Descargar PDF / Imprimir</span>
+          </button>
+
+          <button type="button" onclick="sendReportViaWhatsApp()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-semibold flex items-center gap-1.5 btn-tactile shadow-sm transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span class="hidden sm:inline">Coordinar por </span><span>WhatsApp</span>
+          </button>
+
+          <button type="button" onclick="closeLeadReportModal()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Cerrar ventana">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenedor del Documento Imprimible (A4) -->
+      <div id="lead-report-document" class="p-6 sm:p-8 space-y-5 overflow-y-auto font-body text-slate-800 bg-white leading-normal">
+        
+        <!-- Encabezado Formal de Ingeniería -->
+        <div class="pb-4 border-b-2 border-slate-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-3.5">
+            <img src="logo-efician.png" alt="Efician" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-2xs" />
+            <div>
+              <div class="flex items-baseline">
+                <span class="font-balgin text-2xl sm:text-3xl text-slate-900 leading-none">efic<span class="text-[#00A8C6]">ia</span>n</span>
+                <span class="ml-2 font-mono text-[10px] text-slate-400 font-medium uppercase tracking-wider">Patagonia SpA</span>
+              </div>
+              <span class="font-mono text-[11px] text-sky-700 font-semibold uppercase tracking-wider block mt-0.5">
+                Ingeniería Solar &amp; Eficiencia Energética // Aysén &amp; Chile Austral
+              </span>
+            </div>
+          </div>
+
+          <div class="text-left sm:text-right font-mono text-[11px] text-slate-500 space-y-0.5">
+            <div><span class="text-slate-400">Expediente:</span> <strong id="rep-doc-id" class="text-slate-900 font-bold">#EFI-2026-0001</strong></div>
+            <div><span class="text-slate-400">Emisión:</span> <span id="rep-doc-date" class="text-slate-700">10/09/2026</span></div>
+            <div><span class="text-slate-400">Telemetría:</span> <span class="text-slate-700">MinEnergía / Modelo Satelital TMY3</span></div>
+            <div><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 text-[10px] inline-block mt-0.5">EVALUACIÓN PRELIMINAR CONFORME</span></div>
+          </div>
+        </div>
+
+        <div class="text-left pt-1">
+          <h2 class="font-headline font-extrabold text-base sm:text-lg text-slate-900 tracking-tight uppercase">
+            Memoria Técnica de Factibilidad y Pre-Dimensionamiento Solar
+          </h2>
           <p class="text-xs text-slate-500 font-body mt-0.5">
-            Pre-dimensionamiento de ingeniería generado para tu ubicación.
+            Evaluación técnica situada basada en irradiancia horaria satelital y marco legal chileno de Generación Distribuida (Ley 20.571 / 21.118).
           </p>
         </div>
-        <button onclick="closeLeadReportModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
 
-      <!-- Cuerpo del Reporte (Previsualización de Documento) -->
-      <div class="py-5 space-y-4 font-body text-xs text-slate-700" id="report-modal-content">
-        
-        <!-- Ficha de Identificación -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div>
-            <span class="text-slate-400 font-mono text-[10px] block uppercase">Titular del Proyecto:</span>
-            <strong class="text-slate-900 font-headline" id="rep-client-name">Juan Gómez</strong>
-            <span class="text-slate-500 block text-[11px]" id="rep-client-email">juan@ejemplo.com</span>
+        <!-- 1. IDENTIFICACIÓN Y EMPLAZAMIENTO GEOGRÁFICO -->
+        <div class="rounded-xl border border-slate-200 p-3.5 bg-slate-50/50 print-avoid-break">
+          <div class="font-mono text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200 flex justify-between">
+            <span>1. Identificación del Proyecto &amp; Emplazamiento</span>
+            <span class="text-sky-700 font-semibold" id="rep-regimen-badge">Conexión On-Grid</span>
           </div>
-          <div>
-            <span class="text-slate-400 font-mono text-[10px] block uppercase">Ubicación y Tipo:</span>
-            <strong class="text-slate-900 font-headline" id="rep-site-commune">Coyhaique</strong>
-            <span class="text-slate-500 font-mono block text-[11px]" id="rep-site-coords">Lat: -45.571°, Lon: -72.068°</span>
-          </div>
-        </div>
 
-        <!-- Tabla Resumen de Telemetría Real -->
-        <div class="rounded-xl border border-slate-200 overflow-hidden">
-          <div class="bg-slate-100 px-3.5 py-2 font-mono text-[11px] font-semibold text-slate-700 flex justify-between">
-            <span>Parámetro Físico / Climático</span>
-            <span>Valor Situado</span>
-          </div>
-          <div class="divide-y divide-slate-100 text-xs font-body bg-white">
-            <div class="px-3.5 py-2 flex justify-between">
-              <span>Irradiancia Global Horizontal (GHI):</span>
-              <strong class="font-mono text-slate-900" id="rep-val-ghi">160.2 W/m²</strong>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <span class="text-slate-400 font-mono text-[10px] block uppercase">Titular / Razón Social</span>
+              <strong id="rep-client-name" class="text-slate-900 font-medium block">Juan Gómez</strong>
+              <span id="rep-client-email" class="text-slate-500 font-mono text-[11px] block">juan@ejemplo.com</span>
+              <span id="rep-client-type" class="mt-1 inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-white border border-slate-200 text-slate-700">Domicilio</span>
             </div>
-            <div class="px-3.5 py-2 flex justify-between">
-              <span>Temperatura Media Anual del Sitio:</span>
-              <strong class="font-mono text-slate-900" id="rep-val-temp">7.2 °C</strong>
+
+            <div>
+              <span class="text-slate-400 font-mono text-[10px] block uppercase">Emplazamiento Geográfico</span>
+              <strong id="rep-site-commune" class="text-slate-900 font-medium block">Coyhaique</strong>
+              <span id="rep-site-coords" class="text-slate-600 font-mono text-[11px] block">Lat: -45.57120°, Lon: -72.06830°</span>
+              <span id="rep-site-elevation" class="text-slate-500 font-mono text-[10px] block">Elevación: ~284 msnm</span>
             </div>
-            <div class="px-3.5 py-2 flex justify-between">
-              <span>Rendimiento Específico Situado:</span>
-              <strong class="font-mono text-sky-700" id="rep-val-yield">1.323 kWh/kWp/año</strong>
-            </div>
-            <div class="px-3.5 py-2 flex justify-between">
-              <span>Generación Crítica de Invierno (Junio):</span>
-              <strong class="font-mono text-amber-700" id="rep-val-winter">76 kWh / kWp</strong>
-            </div>
-            <div class="px-3.5 py-2 flex justify-between">
-              <span>Generación Máxima de Verano (Diciembre):</span>
-              <strong class="font-mono text-emerald-700" id="rep-val-summer">148 kWh / kWp</strong>
-            </div>
-            <div id="rep-row-roof" class="hidden px-3.5 py-2 flex justify-between bg-sky-50/60">
-              <span class="text-sky-900 font-medium">Techumbre Medida en Satélite:</span>
-              <strong class="font-mono text-sky-900" id="rep-val-roof">0 m² útiles</strong>
+
+            <div>
+              <span class="text-slate-400 font-mono text-[10px] block uppercase">Régimen &amp; Distribuidora</span>
+              <strong id="rep-site-supply" class="text-slate-900 font-medium block">Con Red Eléctrica (Edelaysén)</strong>
+              <span id="rep-site-grid-note" class="text-slate-600 text-[11px] block">Tarifa BT1 // Net-Billing</span>
+              <span class="text-slate-500 font-mono text-[10px] block">Trámite SEC: Declaración TE4</span>
             </div>
           </div>
         </div>
 
-        <!-- Ficha de Dimensionamiento y Propuesta -->
-        <div class="p-4 rounded-xl bg-sky-50/60 border border-sky-200 space-y-2">
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs font-mono text-sky-900 font-bold uppercase">Kit Asignado por Efician:</span>
-            <span class="font-headline font-black text-sm text-sky-700" id="rep-kit-name">Kit Parcela Confort 5.5 kWp</span>
+        <!-- 2. PARÁMETROS CLIMÁTICOS Y CRITERIO ESTRUCTURAL DE CUBIERTA -->
+        <div class="rounded-xl border border-slate-200 p-3.5 bg-white print-avoid-break">
+          <div class="font-mono text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2.5 pb-1 border-b border-slate-200 flex justify-between">
+            <span>2. Parámetros de Sitio &amp; Criterio Estructural de Techumbre</span>
+            <span class="text-slate-500 font-normal text-[10px]">Cálculo Geodésico WGS84</span>
           </div>
-          <div class="text-[11px] text-slate-600 leading-relaxed" id="rep-kit-details">
-            Sistema Híbrido LiFePO4 // 10 Paneles 550W // Inversor 5.0 kW // Batería 5.12 kWh
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3 text-center font-mono">
+            <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block">GHI Anual</span>
+              <strong id="rep-ghi-val" class="text-sm font-bold text-slate-900">160.2 W/m²</strong>
+              <span class="text-[9px] text-slate-400 block">Irradiancia media</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block">Rendimiento Específico</span>
+              <strong id="rep-yield-val" class="text-sm font-bold text-sky-700">1.323 kWh/kWp</strong>
+              <span class="text-[9px] text-slate-400 block">Por kWp al año</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block">Orientación (Azimut)</span>
+              <strong class="text-sm font-bold text-slate-900">Norte (0°)</strong>
+              <span class="text-[9px] text-slate-400 block">Captación solar máxima</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block">Inclinación Recomendada</span>
+              <strong class="text-sm font-bold text-slate-900">50° Austral</strong>
+              <span class="text-[9px] text-slate-400 block">Evacuación nieve</span>
+            </div>
           </div>
-          <div class="pt-2 border-t border-sky-200/60 flex justify-between items-center text-xs">
-            <span class="font-medium text-slate-700">Ahorro Económico Anual Estimado:</span>
-            <strong class="font-mono font-black text-emerald-700 text-sm" id="rep-val-savings">$1.455.000 CLP/año</strong>
-          </div>
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-600">Retorno de Inversión Proyectado:</span>
-            <strong class="font-mono font-bold text-slate-900" id="rep-val-payback">~4.0 años</strong>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1 border-t border-slate-100">
+            <div class="space-y-1">
+              <span class="font-mono font-semibold text-slate-700 block text-[11px]">Superficie de Techumbre:</span>
+              <div class="flex justify-between text-slate-600">
+                <span>Superficie delimitada en mapa:</span>
+                <strong id="rep-roof-total" class="font-mono text-slate-900">130.1 m²</strong>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Área útil efectiva (80%):</span>
+                <strong id="rep-roof-usable" class="font-mono text-slate-900">104.1 m²</strong>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Área ocupada por Kit Sugerido:</span>
+                <strong id="rep-roof-req" class="font-mono text-sky-700">26.0 m² (<span id="rep-roof-pct">25%</span> útil)</strong>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <span class="font-mono font-semibold text-slate-700 block text-[11px]">Resistencia y Criterio Estructural:</span>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                • <strong>Carga de Viento de Diseño:</strong> Resistencia certificada para ráfagas hasta 120 km/h.<br/>
+                • <strong>Sobrecarga de Nieve:</strong> Estructura calibrada para 1.2 kN/m² en cubierta de zinc.<br/>
+                • <strong>Materialidad:</strong> Perfilería de aluminio anodizado AL6005-T5 y pernos de acero inoxidable SUS304.
+              </p>
+            </div>
           </div>
         </div>
 
-        <!-- Cláusula de Validez -->
-        <p class="text-[10px] text-slate-400 font-body leading-relaxed">
-          * Este dossier preliminar no constituye compromiso de venta final. Los valores finales serán confirmados por un ingeniero SEC de Efician tras la evaluación presencial de sombras locales, orientación de cubierta y tablero eléctrico.
-        </p>
+        <!-- 3. BALANCE ENERGÉTICO MENSUAL (TABLA 12 MESES) -->
+        <div class="rounded-xl border border-slate-200 p-3.5 bg-slate-50/40 print-avoid-break">
+          <div class="font-mono text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200 flex justify-between items-baseline">
+            <span>3. Balance Energético y Estacionalidad Mes a Mes (12 Meses)</span>
+            <span class="text-slate-500 font-normal text-[10px]">Unidades en kWh</span>
+          </div>
 
-      </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs font-mono text-slate-700 border-collapse">
+              <thead>
+                <tr class="border-b border-slate-300 text-[10px] text-slate-500 uppercase bg-slate-100">
+                  <th class="py-1 px-2 text-left font-semibold">Mes</th>
+                  <th class="py-1 px-2 text-right font-semibold">Rendimiento (kWh/kWp)</th>
+                  <th class="py-1 px-2 text-right font-semibold">Generación Kit (kWh)</th>
+                  <th class="py-1 px-2 text-right font-semibold">Consumo Estimado (kWh)</th>
+                  <th class="py-1 px-2 text-right font-semibold">Saldo Neto (+/- kWh)</th>
+                  <th class="py-1 px-2 text-center font-semibold">Régimen</th>
+                </tr>
+              </thead>
+              <tbody id="rep-monthly-table-body" class="divide-y divide-slate-200 text-[11px]">
+                <!-- Inyectado por JS -->
+              </tbody>
+              <tfoot id="rep-monthly-table-foot" class="border-t-2 border-slate-400 font-bold bg-slate-100 text-slate-900 text-[11px]">
+                <!-- Inyectado por JS -->
+              </tfoot>
+            </table>
+          </div>
+          <div class="mt-1.5 text-[10px] text-slate-500 font-body">
+            * Meses con saldo positivo (+) inyectan excedentes a Edelaysén bajo Ley 20.571 o cargan baterías. En meses de invierno (-), la demanda restante es abastecida por la red pública o generador.
+          </div>
+        </div>
 
-      <!-- Acciones del Reporte -->
-      <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-        <button onclick="sendReportViaWhatsApp()" class="w-full sm:w-2/3 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs font-body flex items-center justify-center gap-2 btn-tactile shadow-md">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-          <span>Recibir y Coordinar por WhatsApp</span>
-        </button>
-        <button onclick="window.print()" class="w-full sm:w-1/3 py-3 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs font-mono flex items-center justify-center gap-1.5 btn-tactile">
-          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          <span>Imprimir / PDF</span>
-        </button>
+        <!-- 4. MODELO FINANCIERO Y RETORNO DE INVERSIÓN A 25 AÑOS -->
+        <div class="rounded-xl border border-slate-200 p-3.5 bg-white print-avoid-break print-page-break">
+          <div class="font-mono text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200 flex justify-between">
+            <span>4. Modelo Financiero Situado &amp; Retorno de Inversión</span>
+            <span class="text-emerald-700 font-semibold text-[10px]">Degradación Lineal 0.55%/año</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-2.5">
+            <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+              <span class="text-slate-500 text-[10px] font-mono block uppercase">Inversión Estimada Equipamiento</span>
+              <strong id="rep-fin-investment" class="text-base font-headline font-bold text-slate-900 block mt-0.5">$5.890.000</strong>
+              <span id="rep-fin-tax-note" class="text-[10px] text-slate-500 font-mono">CLP IVA Incluido</span>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200">
+              <span class="text-emerald-800 text-[10px] font-mono block uppercase font-semibold">Ahorro Anual Proyectado (Año 1)</span>
+              <strong id="rep-fin-annual-savings" class="text-base font-headline font-bold text-emerald-700 block mt-0.5">$1.455.000</strong>
+              <span id="rep-fin-savings-breakdown" class="text-[10px] text-emerald-800 font-mono">Autoconsumo + Inyección</span>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+              <span class="text-slate-500 text-[10px] font-mono block uppercase">Período de Retorno (Payback)</span>
+              <strong id="rep-fin-payback" class="text-base font-headline font-bold text-slate-900 block mt-0.5">~4.0 años</strong>
+              <span class="text-[10px] text-slate-500 font-mono">Amortización simple</span>
+            </div>
+          </div>
+
+          <!-- Proyección Acumulada 25 Años -->
+          <div class="pt-2 border-t border-slate-100">
+            <span class="font-mono text-[10px] font-semibold text-slate-700 block mb-1">Flujo de Ahorro Acumulado en el Ciclo de Vida Útil (25 Años):</span>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-center font-mono text-xs">
+              <div class="p-1.5 rounded bg-slate-50 border border-slate-200">
+                <span class="text-[9px] text-slate-400 block">Año 1 (100%)</span>
+                <strong id="rep-accum-1" class="text-slate-800 font-bold">$1.45M</strong>
+              </div>
+              <div class="p-1.5 rounded bg-slate-50 border border-slate-200">
+                <span class="text-[9px] text-slate-400 block">Año 5 (97.8%)</span>
+                <strong id="rep-accum-5" class="text-slate-800 font-bold">$7.12M</strong>
+              </div>
+              <div class="p-1.5 rounded bg-slate-50 border border-slate-200">
+                <span class="text-[9px] text-slate-400 block">Año 10 (95.0%)</span>
+                <strong id="rep-accum-10" class="text-slate-800 font-bold">$13.9M</strong>
+              </div>
+              <div class="p-1.5 rounded bg-slate-50 border border-slate-200">
+                <span class="text-[9px] text-slate-400 block">Año 20 (89.5%)</span>
+                <strong id="rep-accum-20" class="text-slate-800 font-bold">$26.8M</strong>
+              </div>
+              <div class="p-1.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-900">
+                <span class="text-[9px] text-emerald-700 block font-semibold">Año 25 (Garantía)</span>
+                <strong id="rep-accum-25" class="text-emerald-700 font-bold">$32.9M</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. FICHA DE COMPONENTES BASE & PROCEDIMIENTO SEC TE4 -->
+        <div class="rounded-xl border border-slate-200 p-3.5 bg-slate-50/50 print-avoid-break">
+          <div class="font-mono text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200 flex justify-between">
+            <span>5. Especificación de Componentes &amp; Tramitación SEC</span>
+            <span class="text-slate-500 font-normal text-[10px]">Norma Técnica Chilena</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-body">
+            <div class="space-y-1.5">
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-500">Módulos Fotovoltaicos:</span>
+                <strong id="rep-spec-panels" class="font-mono text-slate-900 text-right">10 Paneles Monocristalinos TOPCon 550W</strong>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-500">Inversor Certificado:</span>
+                <strong id="rep-spec-inverter" class="font-mono text-slate-900 text-right">Híbrido 5.0 kW (Conexión SEC)</strong>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-500">Almacenamiento:</span>
+                <strong id="rep-spec-storage" class="font-mono text-slate-900 text-right">Batería LiFePO4 5.12 kWh</strong>
+              </div>
+              <div class="flex justify-between py-1">
+                <span class="text-slate-500">Protecciones Eléctricas:</span>
+                <strong class="font-mono text-slate-900 text-right">Tablero DC/AC con Descargadores Sobretensión</strong>
+              </div>
+            </div>
+
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 space-y-1">
+              <span class="font-mono font-bold text-[11px] text-slate-900 block">Procedimiento Regulatorio SEC TE4:</span>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                1. <strong>Levantamiento &amp; Planos:</strong> Diseño unilineal por Ingeniero Electricista autorizado SEC.<br/>
+                2. <strong>Declaración TE4:</strong> Inscripción legal en plataforma de la Superintendencia de Electricidad y Combustibles.<br/>
+                3. <strong>Conexión con Distribuidora:</strong> Formalización de Protocolo de Conexión y cambio a medidor bidireccional con Edelaysén bajo Ley 20.571.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIE DE FIRMAS Y RESPONSABILIDAD TÉCNICA -->
+        <div class="pt-3 border-t border-slate-200 text-[10px] text-slate-500 leading-relaxed print-avoid-break space-y-2">
+          <p>
+            <strong>Nota de Ingeniería:</strong> El presente dossier constituye una memoria técnica preliminar de pre-dimensionamiento calculada con telemetría solar y modelos climáticos horarios TMY3. Las cifras finales de inyección y montaje quedan sujetas a la verificación presencial en terreno de inclinación real de cubierta, sombreados por vegetación o cordones montañosos, y capacidad del empalme existente.
+          </p>
+
+          <div class="grid grid-cols-2 gap-6 pt-2 font-mono text-[11px] text-slate-700">
+            <div class="border-t border-slate-300 pt-1.5 text-center">
+              <strong id="rep-sign-client" class="block text-slate-900">Juan Gómez</strong>
+              <span class="text-slate-500 text-[10px] block">Titular del Proyecto</span>
+            </div>
+            <div class="border-t border-slate-300 pt-1.5 text-center">
+              <strong class="block text-slate-900">Ingeniería &amp; Proyectos Efician SpA</strong>
+              <span class="text-slate-500 text-[10px] block">Instalador Eléctrico Autorizado SEC</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -4959,7 +5248,17 @@
       alert('Boleta demo cargada: 380 kWh/mes (Tarifa BT1 Edelaysén).');
     }
 
-    // --- Modal del Reporte Completo (Lead Magnet) ---
+    // --- Modal del Reporte Completo (Dossier Técnico A4) ---
+    function exportDossierToPDF() {
+      const prevTitle = document.title;
+      const clientSlug = (appState.lead.name || 'Cliente').replace(/[^a-zA-Z0-9_-]/g, '_');
+      document.title = `Efician_Dossier_Tecnico_${clientSlug}_${appState.solarSite.communeLabel || 'Aysen'}`;
+      window.print();
+      setTimeout(() => {
+        document.title = prevTitle;
+      }, 1000);
+    }
+
     function openLeadReportModal() {
       const calc = appState.lastCalculation;
       if (!calc) {
@@ -4968,35 +5267,160 @@
 
       const activeCalc = appState.lastCalculation;
       const kit = activeCalc.kit;
+      const lead = appState.lead;
+      const site = appState.solarSite;
+      const kitKwp = parseFloat(kit.power);
 
-      document.getElementById('rep-client-name').textContent = appState.lead.name || 'Cliente Interesado';
-      document.getElementById('rep-client-email').textContent = `${appState.lead.email || 'Sin correo'} | ${appState.lead.clientType === 'empresa' ? 'Empresa' : 'Domicilio'}`;
-      document.getElementById('rep-site-commune').textContent = appState.solarSite.communeLabel;
-      document.getElementById('rep-site-coords').textContent = `Lat: ${appState.solarSite.lat.toFixed(3)}°, Lon: ${appState.solarSite.lon.toFixed(3)}° (Elev: ${appState.solarSite.elevation}m)`;
-      
-      document.getElementById('rep-val-ghi').textContent = `${appState.solarSite.ghiAnnual.toFixed(1)} W/m²`;
-      document.getElementById('rep-val-temp').textContent = `${appState.solarSite.tempAnnual.toFixed(1)} °C (+5.4% Eficiencia Frío)`;
-      document.getElementById('rep-val-yield').textContent = `${appState.solarSite.annualYieldPerKwp.toLocaleString('es-CL')} kWh/kWp/año`;
-      document.getElementById('rep-val-winter').textContent = `${appState.solarSite.monthlyYieldPerKwp[5]} kWh / kWp (${activeCalc.kitMonthlyGenerationKwh[5]} kWh Kit)`;
-      document.getElementById('rep-val-summer').textContent = `${appState.solarSite.monthlyYieldPerKwp[11]} kWh / kWp (${activeCalc.kitMonthlyGenerationKwh[11]} kWh Kit)`;
+      // Código único de expediente para el documento
+      if (!appState.dossierCode) {
+        appState.dossierCode = `EFI-REC-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      }
+      const today = new Date();
+      const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
-      // Ficha de techumbre medida en satélite si está activa
-      const rowRoof = document.getElementById('rep-row-roof');
-      const valRoof = document.getElementById('rep-val-roof');
+      // 1. Encabezado y Metadatos
+      document.getElementById('rep-doc-id').textContent = appState.dossierCode;
+      document.getElementById('rep-doc-date').textContent = formattedDate;
+
+      // 2. Identificación del Proyecto
+      document.getElementById('rep-client-name').textContent = lead.name || 'Cliente Interesado';
+      document.getElementById('rep-sign-client').textContent = lead.name || 'Titular del Proyecto';
+      document.getElementById('rep-client-email').textContent = lead.email || 'Sin correo registrado';
+      document.getElementById('rep-client-type').textContent = lead.clientType === 'empresa' ? 'Persona Jurídica (Empresa)' : 'Persona Natural (Domicilio)';
+
+      // Emplazamiento
+      document.getElementById('rep-site-commune').textContent = site.communeLabel;
+      document.getElementById('rep-site-coords').textContent = `Lat: ${site.lat.toFixed(5)}°, Lon: ${site.lon.toFixed(5)}°`;
+      document.getElementById('rep-site-elevation').textContent = `Elevación: ~${site.elevation || 284} msnm`;
+
+      const isOffGrid = (site.supplyType === 'offgrid');
+      document.getElementById('rep-regimen-badge').textContent = isOffGrid ? 'Régimen Autónomo (Off-Grid)' : 'Conexión Con Red (On-Grid)';
+      document.getElementById('rep-site-supply').textContent = isOffGrid ? 'Sistema Autónomo Aislado (Sin Red)' : 'Con Red Eléctrica (Edelaysén)';
+      document.getElementById('rep-site-grid-note').textContent = isOffGrid ? 'Generación 100% Autónoma // Banco LiFePO4' : 'Tarifa BT1 // Ley Net-Billing 20.571';
+
+      // 3. Parámetros de Sitio & Techumbre
+      document.getElementById('rep-ghi-val').textContent = `${site.ghiAnnual.toFixed(1)} W/m²`;
+      document.getElementById('rep-yield-val').textContent = `${site.annualYieldPerKwp.toLocaleString('es-CL')} kWh/kWp`;
+
+      const kitAreaNum = parseFloat(kit.area) || 26;
       if (appState.roofMeasurement && appState.roofMeasurement.active) {
-        if (rowRoof) rowRoof.classList.remove('hidden');
-        if (valRoof) {
-          valRoof.textContent = `${appState.roofMeasurement.areaTotal.toFixed(1)} m² total (${appState.roofMeasurement.areaUsable.toFixed(1)} m² útiles // máx ${appState.roofMeasurement.maxPanels} paneles)`;
-        }
+        const rm = appState.roofMeasurement;
+        document.getElementById('rep-roof-total').textContent = `${rm.areaTotal.toFixed(1)} m²`;
+        document.getElementById('rep-roof-usable').textContent = `${rm.areaUsable.toFixed(1)} m²`;
+        const pct = Math.min(100, Math.round((kitAreaNum / rm.areaUsable) * 100));
+        document.getElementById('rep-roof-req').textContent = `${kit.area} (${pct}% de área útil)`;
       } else {
-        if (rowRoof) rowRoof.classList.add('hidden');
+        document.getElementById('rep-roof-total').textContent = `~40.0 m² (Estimada)`;
+        document.getElementById('rep-roof-usable').textContent = `~32.0 m² (Estimada 80%)`;
+        document.getElementById('rep-roof-req').textContent = `${kit.area} (~${Math.round((kitAreaNum / 32) * 100)}% de área útil)`;
       }
 
-      document.getElementById('rep-kit-name').textContent = `${kit.name} (${kit.power})`;
-      document.getElementById('rep-kit-details').textContent = `${kit.type} // ${kit.panels} // ${kit.inverter} // ${kit.storage}`;
-      document.getElementById('rep-val-savings').textContent = `$${activeCalc.annualSavingsClp.toLocaleString('es-CL')} CLP/año`;
-      document.getElementById('rep-val-payback').textContent = `~${activeCalc.paybackYears} años`;
+      // 4. Tabla Mensual de Balance 12 Meses
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const tbody = document.getElementById('rep-monthly-table-body');
+      const tfoot = document.getElementById('rep-monthly-table-foot');
+      let tableHtml = '';
+      let sumGen = 0;
+      let sumCons = 0;
+      let sumYield = 0;
 
+      const monthlyDemand = appState.currentConsumptionKwh;
+
+      for (let i = 0; i < 12; i++) {
+        const yieldUnit = site.monthlyYieldPerKwp[i] || 100;
+        const genKit = activeCalc.kitMonthlyGenerationKwh[i] || Math.round(yieldUnit * kitKwp);
+        const saldo = genKit - monthlyDemand;
+        sumYield += yieldUnit;
+        sumGen += genKit;
+        sumCons += monthlyDemand;
+
+        const isWinterMin = (i === 5); // Junio
+        const isSummerMax = (i === 11); // Diciembre
+        let rowClass = 'hover:bg-slate-50 transition-colors';
+        if (isWinterMin) rowClass = 'bg-amber-50/60 font-medium';
+        if (isSummerMax) rowClass = 'bg-sky-50/60 font-medium';
+
+        let regimeTag = saldo >= 0 
+          ? '<span class="text-emerald-700 font-semibold">+ Inyección</span>'
+          : '<span class="text-slate-500 font-normal">- Red / Generador</span>';
+
+        tableHtml += `
+          <tr class="${rowClass}">
+            <td class="py-1 px-2 text-left">${monthNames[i]} ${isWinterMin ? '<span class="text-[9px] text-amber-700 font-bold">(Mín.)</span>' : ''} ${isSummerMax ? '<span class="text-[9px] text-sky-700 font-bold">(Máx.)</span>' : ''}</td>
+            <td class="py-1 px-2 text-right tabular-num text-slate-600">${yieldUnit}</td>
+            <td class="py-1 px-2 text-right tabular-num font-semibold text-slate-900">${genKit.toLocaleString('es-CL')}</td>
+            <td class="py-1 px-2 text-right tabular-num text-slate-600">${monthlyDemand.toLocaleString('es-CL')}</td>
+            <td class="py-1 px-2 text-right tabular-num font-bold ${saldo >= 0 ? 'text-emerald-700' : 'text-slate-600'}">
+              ${saldo > 0 ? '+' : ''}${saldo.toLocaleString('es-CL')}
+            </td>
+            <td class="py-1 px-2 text-center text-[10px]">${regimeTag}</td>
+          </tr>
+        `;
+      }
+
+      if (tbody) tbody.innerHTML = tableHtml;
+
+      const totalSaldo = sumGen - sumCons;
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr>
+            <td class="py-1.5 px-2 text-left uppercase">Total Anual:</td>
+            <td class="py-1.5 px-2 text-right tabular-num">${sumYield.toLocaleString('es-CL')}</td>
+            <td class="py-1.5 px-2 text-right tabular-num font-bold text-sky-800">${sumGen.toLocaleString('es-CL')} kWh</td>
+            <td class="py-1.5 px-2 text-right tabular-num text-slate-700">${sumCons.toLocaleString('es-CL')} kWh</td>
+            <td class="py-1.5 px-2 text-right tabular-num font-bold ${totalSaldo >= 0 ? 'text-emerald-700' : 'text-slate-700'}">
+              ${totalSaldo > 0 ? '+' : ''}${totalSaldo.toLocaleString('es-CL')} kWh
+            </td>
+            <td class="py-1.5 px-2 text-center text-[10px] text-sky-800">
+              ${Math.min(100, Math.round((sumGen / sumCons) * 100))}% Cobertura
+            </td>
+          </tr>
+        `;
+      }
+
+      // 5. Modelo Financiero & Flujo 25 Años
+      document.getElementById('rep-fin-investment').textContent = `$${kit.price.toLocaleString('es-CL')}`;
+      if (lead.clientType === 'empresa') {
+        const netVal = Math.round(kit.price / 1.19);
+        document.getElementById('rep-fin-tax-note').textContent = `$${netVal.toLocaleString('es-CL')} Neto + 19% IVA (Crédito Fiscal)`;
+      } else {
+        document.getElementById('rep-fin-tax-note').textContent = `CLP IVA Incluido (Boleta Electrónica)`;
+      }
+
+      document.getElementById('rep-fin-annual-savings').textContent = `$${activeCalc.annualSavingsClp.toLocaleString('es-CL')}`;
+      document.getElementById('rep-fin-savings-breakdown').textContent = isOffGrid 
+        ? `Diésel fósil evitado (~${Math.round(sumGen / 3.0)} L/año)` 
+        : `Autoconsumo BT1 ($200) + Inyección Net-Billing ($110)`;
+      document.getElementById('rep-fin-payback').textContent = `~${activeCalc.paybackYears} años`;
+
+      // Flujo Acumulado con degradación técnica 0.55%/año
+      let accum5 = 0;
+      let accum10 = 0;
+      let accum20 = 0;
+      let accum25 = 0;
+
+      for (let y = 1; y <= 25; y++) {
+        const degFactor = 1.0 - ((y - 1) * 0.0055);
+        const yearlyVal = activeCalc.annualSavingsClp * degFactor;
+        if (y <= 5) accum5 += yearlyVal;
+        if (y <= 10) accum10 += yearlyVal;
+        if (y <= 20) accum20 += yearlyVal;
+        accum25 += yearlyVal;
+      }
+
+      const formatMillions = (val) => `$${(val / 1000000).toFixed(1)}M`;
+      document.getElementById('rep-accum-1').textContent = formatMillions(activeCalc.annualSavingsClp);
+      document.getElementById('rep-accum-5').textContent = formatMillions(accum5);
+      document.getElementById('rep-accum-10').textContent = formatMillions(accum10);
+      document.getElementById('rep-accum-20').textContent = formatMillions(accum20);
+      document.getElementById('rep-accum-25').textContent = formatMillions(accum25);
+
+      // 6. Especificaciones de Componentes
+      document.getElementById('rep-spec-panels').textContent = `${kit.panels} (Monocristalino N-Type TOPCon 550W)`;
+      document.getElementById('rep-spec-inverter').textContent = `${kit.inverter} (Certificación SEC)`;
+      document.getElementById('rep-spec-storage').textContent = kit.storage;
+
+      // Mostrar modal en pantalla
       document.getElementById('lead-report-modal').classList.remove('modal-hidden');
     }
 
@@ -5010,29 +5434,31 @@
       const kit = calc.kit;
       const lead = appState.lead;
       const site = appState.solarSite;
+      const code = appState.dossierCode || 'EFI-2026-XXXX';
 
       let roofText = '';
       if (appState.roofMeasurement && appState.roofMeasurement.active) {
-        roofText = `\n*Superficie Techo Medida:* ${appState.roofMeasurement.areaTotal.toFixed(1)} m² (${appState.roofMeasurement.areaUsable.toFixed(1)} m² útiles // máx ${appState.roofMeasurement.maxPanels} paneles)`;
+        roofText = `\n*Superficie Techo Medida:* ${appState.roofMeasurement.areaTotal.toFixed(1)} m² (${appState.roofMeasurement.areaUsable.toFixed(1)} m² útiles)`;
       }
 
-      const text = `*SOLICITUD DE DOSSIER TÉCNICO // EFICIAN AUSTRAL*
+      const text = `*SOLICITUD DE REVISIÓN TÉCNICA // EFICIAN AUSTRAL*
 ----------------------------------------
-*Cliente:* ${lead.name}
+*Expediente:* ${code}
+*Titular:* ${lead.name}
 *Correo:* ${lead.email}
-*Tipo:* ${lead.clientType === 'empresa' ? 'Empresa' : 'Domicilio / Parcela'}
-*Ubicación:* ${site.communeLabel} (Lat ${site.lat.toFixed(3)}, Lon ${site.lon.toFixed(3)})${roofText}
-*Conexión:* ${site.supplyType === 'offgrid' ? 'Parcela Aislada (Off-Grid)' : 'Con Red (Edelaysén)'}
+*Régimen:* ${lead.clientType === 'empresa' ? 'Empresa / Comercial' : 'Domicilio / Parcela'}
+*Ubicación:* ${site.communeLabel} (Lat ${site.lat.toFixed(4)}, Lon ${site.lon.toFixed(4)})${roofText}
+*Suministro:* ${site.supplyType === 'offgrid' ? 'Parcela Aislada (Off-Grid)' : 'Con Red (Edelaysén / Ley 20.571)'}
 ----------------------------------------
-*Kit Sugerido:* ${kit.name} (${kit.power})
-*Generación Anual Proyectada:* ${calc.kitAnnualGenerationKwh.toLocaleString('es-CL')} kWh/año
+*Kit Propuesto:* ${kit.name} (${kit.power})
+*Generación Anual:* ${calc.kitAnnualGenerationKwh.toLocaleString('es-CL')} kWh/año
 *Ahorro Proyectado:* $${calc.annualSavingsClp.toLocaleString('es-CL')} CLP/año
-*Retorno Estimado:* ~${calc.paybackYears} años
+*Retorno Simple:* ~${calc.paybackYears} años
 ----------------------------------------
-Hola equipo de Efician, generé mi pre-dimensionamiento solar con telemetría en su web y deseo coordinar una evaluación técnica formal para mi propiedad.`;
+Estimado equipo técnico de Efician:
+He revisado el pre-dimensionamiento y deseo solicitar una visita técnica presencial en mi propiedad para corroborar empalme, sombras y tramitación SEC TE4.`;
 
       const encoded = encodeURIComponent(text);
-      // Número comercial oficial o enlace universal de WhatsApp
       window.open(`https://wa.me/56988887777?text=${encoded}`, '_blank');
     }
 
