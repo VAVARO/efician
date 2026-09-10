@@ -1,0 +1,20 @@
+﻿# Capturas de pantalla de testing y desarrollo UI
+shot_*.png
+chrome_shot*.png
+full_page.png
+
+# Archivos comprimidos y backups
+*.zip
+
+# Archivos PDF pesados de presentacion interna
+*.pdf
+
+# Volcados de imagenes sin optimizar / archivos fuente pesados
+IMAGENES-20260908T194459Z-1-001/
+
+# Archivos de sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

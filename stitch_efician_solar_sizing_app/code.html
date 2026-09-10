@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EFICIAN AYSÉN // SCADA Cognitive Engine v4.8</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<!-- Typography as requested: Space Grotesk / Syne for bold technical titles, Inter for sleek readable text, DM Mono & JetBrains Mono for figures -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=Syne:wght@600;700;800&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { display: none; }
+
+    /* Neural network node pulse animations */
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.85; filter: drop-shadow(0 0 6px rgba(0, 251, 251, 0.7)); }
+      50% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 14px rgba(0, 251, 251, 1)); }
+    }
+    @keyframes pulseSecondary {
+      0%, 100% { transform: scale(1); opacity: 0.6; filter: drop-shadow(0 0 4px rgba(168, 202, 234, 0.5)); }
+      50% { transform: scale(1.25); opacity: 0.95; filter: drop-shadow(0 0 10px rgba(168, 202, 234, 0.9)); }
+    }
+    @keyframes flowLine {
+      0% { stroke-dashoffset: 40; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes rippleCircle {
+      0% { r: 4; opacity: 0.9; }
+      100% { r: 18; opacity: 0; }
+    }
+    .node-pulse-fast {
+      animation: pulseGlow 2.4s infinite ease-in-out;
+      transform-origin: center;
+    }
+    .node-pulse-slow {
+      animation: pulseSecondary 3.6s infinite ease-in-out;
+      transform-origin: center;
+    }
+    .flow-active {
+      stroke-dasharray: 6, 6;
+      animation: flowLine 1.8s linear infinite;
+    }
+    .ripple-fx {
+      animation: rippleCircle 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#020a12",
+            "surface-dim": "#030f1a",
+            "surface": "#041423",
+            "surface-container-lowest": "#01070e",
+            "surface-container-low": "#061829",
+            "surface-container": "#081f33",
+            "surface-container-high": "#0d2943",
+            "surface-container-highest": "#133555",
+            "primary": "#ffffff",
+            "primary-container": "#00fbfb",
+            "on-primary-container": "#002020",
+            "primary-fixed": "#00fbfb",
+            "primary-fixed-dim": "#00dddd",
+            "secondary": "#a8caea",
+            "secondary-container": "#183955",
+            "secondary-fixed": "#cbe6ff",
+            "on-surface": "#d6e8f8",
+            "on-surface-variant": "#8aa4be",
+            "outline": "#4a6782",
+            "outline-variant": "#1c3852"
+          },
+          fontFamily: {
+            headline: ["Space Grotesk", "Syne", "sans-serif"],
+            body: ["Inter", "sans-serif"],
+            mono: ["DM Mono", "JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#020a12] font-body text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-container overflow-x-hidden min-h-screen">
+<!-- TOP CONTEXTUAL MASTHEAD BAR -->
+<header class="fixed top-0 left-0 w-full h-16 z-50 bg-[#020a12]/90 backdrop-blur-xl border-b border-outline-variant/30 flex items-center justify-between px-6 lg:px-10">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<img alt="LOGO CORPORATIVO CUADRADO BLANCO -AZUL OSCURO PNG-01-01-01.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VLIIxLlgtQQ9cZFulFhze4CYHeq84c_JZs6V_eucjP7OEZGmOX68kI2InuFXo4sy8aXaPYJIUk5Mk4k0dCYxBl6lPbPla36CdbpeMngBLdV0_SvxyPMsOjEi4hoXF__xkDmg1vz3wLWNHuQgaGWJtHCwLh9innkNdXwWrLaLTtXF8WhYVu9kHqRNP0lV4GPBe1dL4ywy6JndrftylPJ_Izfom-Va2yClB24QTEsa0xo-yMxSCNOKeS1zMi8QIOwN7RmVHHW0Zraw"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline tracking-tight text-white font-bold text-[17px]">EFICIAN</span>
+<span class="font-mono text-[10px] px-1.5 py-0.5 bg-surface-container-highest text-primary-fixed rounded tracking-wider font-semibold">AYSÉN</span>
+</div>
+<span class="font-mono text-[11px] text-on-surface-variant hidden md:inline">Suite de Ingeniería &amp; Dimensionador Austral</span>
+</div>
+</div>
+<!-- Quick Nav Segments -->
+<nav class="hidden xl:flex items-center gap-1 pl-4 border-l border-outline-variant/30 font-mono text-[12px]">
+<a class="px-3 py-1 text-primary-fixed bg-surface-container-high rounded font-semibold" data-path="dimensionador-rapido" href="#">Dimensionador Rápido</a>
+<a class="px-3 py-1 text-on-surface-variant hover:text-white transition-colors" data-path="monitor-telemetria" href="#">Monitor Telemetría</a>
+<a class="px-3 py-1 text-on-surface-variant hover:text-white transition-colors" data-path="modelos-financiamiento-bess" href="#">Modelos Financiamiento BESS</a>
+<a class="px-3 py-1 text-on-surface-variant hover:text-white transition-colors" data-path="fichas-tecnicas-sec" href="#">Fichas Técnicas SEC</a>
+</nav>
+</div>
+<div class="flex items-center gap-3">
+<!-- Live Status & SEC TE-4 Badges -->
+<div class="hidden lg:flex items-center gap-2 font-mono text-[11px]">
+<div class="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container-low border border-outline-variant/20 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed animate-pulse"></span>
+<span class="text-on-surface-variant">SERVER AYSÉN</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-surface-container-low border border-outline-variant/20 rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-primary-fixed text-[14px]">my_location</span>
+<span>GPS COYHAIQUE</span>
+</div>
+<div class="px-2.5 py-1 bg-surface-container-high border border-outline-variant/40 rounded text-primary-fixed font-bold">
+          SEC TE-4
+        </div>
+<div class="px-2.5 py-1 bg-surface-container-high border border-outline-variant/40 rounded text-secondary font-medium">
+          LEY 21.118
+        </div>
+</div>
+<div class="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-surface-container-lowest border border-primary-fixed/20 rounded font-mono text-[11px] text-primary-fixed">
+<span class="material-symbols-outlined text-[15px]">timer</span>
+<span>01:42:18</span>
+</div>
+<a class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-container text-on-primary-container font-mono text-[12px] rounded font-bold hover:bg-primary-fixed-dim transition-all shadow-[0_0_15px_rgba(0,251,251,0.25)]" data-path="soporte-ingenieria" href="#">
+<span>Contacto Soporte</span>
+</a>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+</div>
+</header>
+<!-- SLIM LEFT COGNITIVE TELEMETRY RAIL (Icon & SCADA Nodes) -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-16 xl:w-56 bg-[#020a12]/95 backdrop-blur-lg border-r border-outline-variant/20 z-40 flex flex-col justify-between p-3 transition-all duration-300">
+<div class="flex flex-col gap-4">
+<div class="hidden xl:flex flex-col px-2 py-1.5 bg-surface-container-low border border-outline-variant/30 rounded font-mono text-[11px]">
+<span class="text-on-surface-variant text-[9px] uppercase tracking-wider">NODO SCADA</span>
+<span class="text-primary-fixed font-medium">45°34'S 72°04'W</span>
+</div>
+<nav class="flex flex-col gap-1 font-mono text-[12px]">
+<a class="flex items-center gap-3 px-2.5 py-2 rounded bg-surface-container-high text-primary-fixed border-l-2 border-primary-fixed font-semibold" data-path="dimensionador-rapido" href="#" title="Dimensionador Rápido">
+<span class="material-symbols-outlined text-[20px] text-primary-fixed">solar_power</span>
+<span class="hidden xl:inline">Dimensionador Rápido</span>
+</a>
+<a class="flex items-center gap-3 px-2.5 py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-white transition-colors" data-path="monitor-telemetria" href="#" title="Monitor Telemetría">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+<span class="hidden xl:inline">Monitor Telemetría</span>
+</a>
+<a class="flex items-center gap-3 px-2.5 py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-white transition-colors" data-path="modelos-financiamiento-bess" href="#" title="Financiamiento BESS">
+<span class="material-symbols-outlined text-[20px]">battery_charging_full</span>
+<span class="hidden xl:inline">Financiamiento BESS</span>
+</a>
+<a class="flex items-center gap-3 px-2.5 py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-white transition-colors" data-path="fichas-tecnicas-sec" href="#" title="Fichas SEC TE-4">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="hidden xl:inline">Fichas SEC TE-4</span>
+</a>
+<a class="flex items-center gap-3 px-2.5 py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-white transition-colors" data-path="analisis-radiacion-patagonia" href="#" title="Radiación Aysén">
+<span class="material-symbols-outlined text-[20px]">wb_sunny</span>
+<span class="hidden xl:inline">Radiación Aysén</span>
+</a>
+<a class="flex items-center gap-3 px-2.5 py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-white transition-colors" data-path="soporte-ingenieria" href="#" title="Mesa Técnica SEC">
+<span class="material-symbols-outlined text-[20px]">support_agent</span>
+<span class="hidden xl:inline">Mesa Técnica SEC</span>
+</a>
+</nav>
+</div>
+<!-- Secondary Telemetry Micro-Sensors in Sidebar -->
+<div class="hidden xl:flex flex-col gap-2 p-2.5 bg-surface-container-lowest/90 border border-outline-variant/30 rounded font-mono text-[11px]">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="text-[10px]">TEMPERATURA COYHAIQUE</span>
+<span class="text-primary-fixed font-bold">4.2°C</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="text-[10px]">IRRADIANCIA GHI</span>
+<span class="text-primary-fixed font-bold">482 W/m²</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant border-t border-outline-variant/20 pt-1.5">
+<span class="text-[10px]">ESTADO RED NET-BILLING</span>
+<span class="text-secondary-fixed text-[10px] font-semibold">SINCRONIZADA</span>
+</div>
+</div>
+</aside>
+<!-- MAIN VIEWPORT WITH 3 CLEAN COGNITIVE QUADRANTS -->
+<div class="pl-16 xl:pl-56 pt-16 min-h-screen flex flex-col bg-[#020a12]">
+<main class="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+<!-- TOP CONTROL & SCADA IDENTIFIER BANNER -->
+<section class="w-full bg-[#041423]/90 border border-outline-variant/40 rounded-xl p-4 lg:p-5 shadow-[0_8px_32px_rgba(0,16,28,0.6)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center p-1.5 shrink-0 shadow-inner">
+<img alt="Efician Patagonia Solar Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH4BxVWbfKxAHJmrOvt6JtCpv3oi99OswGP7uN2kwJ0fxxOCorBAb3HsX_UYT2rvH-O6miobpLMVeQdieEDTu1j16a-x_o286D4XIidEDjqDJnHUQFC-E-DDWULjNDpMJmnN4oq7n_vYatv2jNPqxpM0Thk1EIc5bXJFZR-zABTXISg4FOgNVs50M67t3SqVu6U9jtlZhN1wDW5ykWbdh98BKngt01hvazfUs_YlWjwzYP656OhAsfCS4BXA3e6lzpYA"/>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[10px] px-2 py-0.5 bg-primary-fixed/15 text-primary-fixed border border-primary-fixed/30 rounded font-semibold tracking-wider">SCADA ENGINE v4.8</span>
+<span class="text-outline-variant">|</span>
+<span class="font-mono text-[11px] text-secondary-fixed">EXPO TECH AYSÉN 2025</span>
+</div>
+<h1 class="font-headline text-lg sm:text-xl lg:text-[22px] text-white font-bold tracking-tight">
+              Dimensionamiento Fotovoltaico &amp; Respaldo BESS Patagonia Austral
+            </h1>
+</div>
+</div>
+<!-- Customer Segment Selector & Legal Badge -->
+<div class="flex flex-wrap items-center gap-3">
+<div class="bg-surface-container-lowest border border-outline-variant/40 p-1 rounded-lg flex items-center">
+<button class="px-3 py-1.5 rounded font-mono text-[12px] bg-surface-container-high text-primary-fixed font-semibold shadow transition-all" id="tab-residencial" onclick="switchCustomerType('residencial')">
+              Residencial (&gt;250 kWh/mes)
+            </button>
+<button class="px-3 py-1.5 rounded font-mono text-[12px] text-on-surface-variant hover:text-white transition-all" id="tab-comercial" onclick="switchCustomerType('comercial')">
+              Comercio / Turismo (Lodges &amp; Hoteles)
+            </button>
+</div>
+<div class="px-3 py-1.5 bg-surface-container-high/60 border border-outline-variant/30 rounded-lg flex items-center gap-1.5 font-mono text-[11px] text-secondary-fixed">
+<span class="material-symbols-outlined text-[16px] text-primary-fixed">verified</span>
+<span>Tarifa BT1 / BT2 • Inyección Ley 21.118</span>
+</div>
+</div>
+</section>
+<!-- 3-QUADRANT DASHBOARD COGNITIVE LAYOUT -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- ============================================================ -->
+<!-- QUADRANT 1 (LEFT, 4 cols): NEURAL NETWORK CONSTELLATION & CONSUMPTION -->
+<!-- ============================================================ -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- CARD: NEURAL NETWORK GRAPH WITH REAL-TIME ACTIVE NODES -->
+<div class="bg-[#041423]/95 border border-outline-variant/30 rounded-xl p-4 sm:p-5 shadow-[0_8px_24px_rgba(0,16,28,0.5)] flex flex-col gap-4 relative overflow-hidden">
+<!-- Subtle Radial Gradient Background -->
+<div class="absolute -right-16 -top-16 w-56 h-56 bg-primary-fixed/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed text-[19px]">explore</span>
+<span class="font-mono text-[11px] text-white font-bold tracking-wider">RAD-01 // COORDENADAS &amp; RADIACIÓN AUSTRAL</span>
+</div>
+<span class="font-mono text-[10px] text-primary-fixed px-2 py-0.5 bg-surface-container-high border border-outline-variant/40 rounded">45.57° S, 72.06° W</span>
+</div>
+<!-- Town Selector Pills -->
+<div class="grid grid-cols-4 gap-1.5 font-mono text-[11px]" id="town-selector">
+<button class="town-btn active-town py-1.5 rounded bg-surface-container-high border border-primary-fixed/40 text-primary-fixed font-bold text-center transition-all shadow-[0_0_10px_rgba(0,251,251,0.15)]" onclick="selectTown('Coyhaique', 3.41, 1.8, 5.6)">
+                Coyhaique
+              </button>
+<button class="town-btn py-1.5 rounded bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-white text-center transition-all" onclick="selectTown('Puerto Aysén', 3.12, 1.4, 5.2)">
+                Pto. Aysén
+              </button>
+<button class="town-btn py-1.5 rounded bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-white text-center transition-all" onclick="selectTown('Chile Chico', 4.05, 2.3, 6.4)">
+                Chile Chico
+              </button>
+<button class="town-btn py-1.5 rounded bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-white text-center transition-all" onclick="selectTown('Cochrane', 3.58, 1.9, 5.8)">
+                Cochrane
+              </button>
+</div>
+<!-- INTERACTIVE NEURAL NETWORK CONSTELLATION GRAPH (SVG Canvas) -->
+<div class="relative w-full h-48 rounded-lg overflow-hidden border border-outline-variant/40 bg-gradient-to-b from-[#010810] to-[#041423]" data-location="Coyhaique, Region de Aysen, Chile">
+<!-- Real-time Synaptic Neural Web SVG -->
+<svg class="w-full h-full" preserveaspectratio="xMidYMid meet" viewbox="0 0 380 190">
+<defs>
+<lineargradient id="neuralLineGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#00fbfb" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#a8caea" stop-opacity="0.2"></stop>
+</lineargradient>
+<radialgradient cx="50%" cy="50%" id="nodeGlowCyan" r="50%">
+<stop offset="0%" stop-color="#00fbfb" stop-opacity="1"></stop>
+<stop offset="100%" stop-color="#00fbfb" stop-opacity="0"></stop>
+</radialgradient>
+<radialgradient cx="50%" cy="50%" id="nodeGlowBlue" r="50%">
+<stop offset="0%" stop-color="#a8caea" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#a8caea" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+<!-- Grid lines in constellation background -->
+<line stroke="#133555" stroke-dasharray="2 4" stroke-opacity="0.4" x1="0" x2="380" y1="40" y2="40"></line>
+<line stroke="#133555" stroke-dasharray="2 4" stroke-opacity="0.4" x1="0" x2="380" y1="95" y2="95"></line>
+<line stroke="#133555" stroke-dasharray="2 4" stroke-opacity="0.4" x1="0" x2="380" y1="150" y2="150"></line>
+<line stroke="#133555" stroke-dasharray="2 4" stroke-opacity="0.3" x1="95" x2="95" y1="0" y2="190"></line>
+<line stroke="#133555" stroke-dasharray="2 4" stroke-opacity="0.3" x1="190" x2="190" y1="0" y2="190"></line>
+<line stroke="#133555" stroke-dasharray="2 4" stroke-opacity="0.3" x1="285" x2="285" y1="0" y2="190"></line>
+<!-- Neural Synaptic Connections (Dotted & Animated Flow) -->
+<!-- Edge 1: N_Coyhaique to N_Solar -->
+<line class="flow-active" stroke="#00fbfb" stroke-opacity="0.7" stroke-width="1.6" x1="190" x2="120" y1="95" y2="45"></line>
+<!-- Edge 2: N_Coyhaique to N_BESS -->
+<line class="flow-active" stroke="#a8caea" stroke-opacity="0.6" stroke-width="1.4" x1="190" x2="260" y1="95" y2="55"></line>
+<!-- Edge 3: N_Coyhaique to N_Grid -->
+<line stroke="#1c3852" stroke-dasharray="3 3" stroke-width="1.2" x1="190" x2="190" y1="95" y2="150"></line>
+<!-- Edge 4: Peripheral links -->
+<line stroke="#1c3852" stroke-width="1" x1="60" x2="120" y1="75" y2="45"></line>
+<line stroke="#00fbfb" stroke-opacity="0.5" stroke-width="1.2" x1="120" x2="65" y1="45" y2="135"></line>
+<line stroke="#1c3852" stroke-width="1" x1="260" x2="320" y1="55" y2="85"></line>
+<line stroke="#a8caea" stroke-opacity="0.4" stroke-width="1.2" x1="260" x2="310" y1="55" y2="140"></line>
+<line stroke="#1c3852" stroke-width="1" x1="190" x2="310" y1="150" y2="140"></line>
+<line stroke="#1c3852" stroke-width="1" x1="190" x2="65" y1="150" y2="135"></line>
+<!-- Synaptic ripple rings on primary hub -->
+<circle class="ripple-fx" cx="190" cy="95" fill="none" r="5" stroke="#00fbfb" stroke-width="1.5"></circle>
+<!-- Neural Nodes (Puntos luminosos con pulso CSS) -->
+<!-- Node: Micro-weather sensor west -->
+<circle class="node-pulse-slow" cx="60" cy="75" fill="#a8caea" r="3"></circle>
+<!-- Node: Albedo Sub-Zero sensor -->
+<circle class="node-pulse-fast" cx="65" cy="135" fill="#00fbfb" r="4"></circle>
+<text fill="#8aa4be" font-family="DM Mono" font-size="7.5" x="25" y="150">GHI SENSOR S-2</text>
+<!-- Node: Solar Yield Optimization TOPCon -->
+<circle class="node-pulse-fast" cx="120" cy="45" fill="#00fbfb" r="4.5"></circle>
+<text fill="#00fbfb" font-family="DM Mono" font-size="8" font-weight="600" x="90" y="32">PV ARRAY N-44</text>
+<!-- Central Master Hub: Coyhaique / Aysén SCADA Core -->
+<circle cx="190" cy="95" fill="#00fbfb" fill-opacity="0.25" r="12"></circle>
+<circle class="node-pulse-fast" cx="190" cy="95" fill="#00fbfb" r="5"></circle>
+<circle cx="190" cy="95" fill="#010810" r="2.5"></circle>
+<!-- Node: BESS LiFePO4 Thermal Module -->
+<circle class="node-pulse-slow" cx="260" cy="55" fill="#a8caea" r="4"></circle>
+<text fill="#a8caea" font-family="DM Mono" font-size="8" x="268" y="52">BESS CORE LiFePO4</text>
+<!-- Node: Edelaysen Net-Billing Sync -->
+<circle class="node-pulse-fast" cx="190" cy="150" fill="#00fbfb" r="4"></circle>
+<text fill="#8aa4be" font-family="DM Mono" font-size="7.5" text-anchor="middle" x="190" y="166">RED EDELAYSEN LEY 21.118</text>
+<!-- Node: EPS Critical Backup node -->
+<circle class="node-pulse-slow" cx="320" cy="85" fill="#a8caea" r="3.5"></circle>
+<circle class="node-pulse-fast" cx="310" cy="140" fill="#00fbfb" r="3.5"></circle>
+<text fill="#8aa4be" font-family="DM Mono" font-size="7" x="318" y="142">NODE EPS &lt;20ms</text>
+</svg>
+<!-- Top & Bottom Micro HUD Overlays -->
+<div class="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded border border-outline-variant/30 font-mono text-[10px] text-primary-fixed">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed animate-ping"></span>
+<span id="active-location-name">Coyhaique Centro (650 m.s.n.m.)</span>
+</div>
+<div class="absolute bottom-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between text-on-surface font-mono text-[10px] px-2.5 py-1 bg-surface-container-lowest/85 backdrop-blur-md rounded border border-outline-variant/30">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">snowing</span>
+<span>Albedo Nieve Patagónica: <strong class="text-primary-fixed font-semibold">+14% Bifacial</strong></span>
+</div>
+<span class="text-on-surface-variant">GHI Estación N-44</span>
+</div>
+</div>
+<!-- Technical Metrology Strip (GHI, Winter/Summer HSP) -->
+<div class="grid grid-cols-3 gap-2">
+<div class="bg-surface-container-low border border-outline-variant/30 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">GHI MEDIA ANUAL</span>
+<span class="font-mono text-[15px] text-primary-fixed font-bold leading-tight" id="val-ghi">3.41 <span class="text-on-surface-variant font-normal text-[10px]">kWh/m²</span></span>
+<span class="text-[10px] text-outline mt-0.5">Base satelital NREL/NASA</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/30 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">HSP INVIERNO</span>
+<span class="font-mono text-[15px] text-secondary font-bold leading-tight" id="val-hsp-inv">1.8 h <span class="text-on-surface-variant font-normal text-[10px]">/día</span></span>
+<span class="text-[10px] text-outline mt-0.5">Mes crítico: Junio</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/30 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">HSP VERANO</span>
+<span class="font-mono text-[15px] text-primary-fixed-dim font-bold leading-tight" id="val-hsp-ver">5.6 h <span class="text-on-surface-variant font-normal text-[10px]">/día</span></span>
+<span class="text-[10px] text-outline mt-0.5">Mes peak: Enero</span>
+</div>
+</div>
+<!-- Sub-Zero Optimization Badge -->
+<div class="p-3 bg-surface-container-low/80 border border-primary-fixed/20 rounded-lg flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary-fixed text-[20px] shrink-0 mt-0.5">ac_unit</span>
+<div class="flex flex-col">
+<span class="font-mono text-[11px] text-primary-fixed font-bold">Algoritmo Frío Extremo Activo (Sub-Zero Optimization)</span>
+<p class="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
+                  Compensación térmica por coeficiente negativo de temperatura (-0.30%/°C) en células TOPCon y acondicionamiento térmico LiFePO4 bajo 0°C.
+                </p>
+</div>
+</div>
+</div>
+<!-- CARD: CONSUMPTION PROFILE & EDELAYSEN BILL CALCULATOR -->
+<div class="bg-[#041423]/95 border border-outline-variant/30 rounded-xl p-4 sm:p-5 shadow-[0_8px_24px_rgba(0,16,28,0.5)] flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed text-[19px]">tune</span>
+<span class="font-mono text-[11px] text-white font-bold tracking-wider">ENG-02 // PERFIL DE CONSUMO &amp; FACTURA EDELAYSEN</span>
+</div>
+<span class="font-mono text-[10px] text-secondary-fixed px-2 py-0.5 bg-surface-container-high border border-outline-variant/40 rounded">TARIFA BT-1</span>
+</div>
+<!-- Toggle Unit Buttons -->
+<div class="grid grid-cols-2 bg-surface-container-lowest border border-outline-variant/30 p-1 rounded-lg font-mono text-[11px]">
+<button class="py-1.5 text-center rounded bg-surface-container-high text-primary-fixed font-semibold" id="btn-input-clp">
+                Gasto Mensual ($ CLP)
+              </button>
+<button class="py-1.5 text-center rounded text-on-surface-variant hover:text-white" id="btn-input-kwh">
+                Consumo Energético (kWh/mes)
+              </button>
+</div>
+<!-- Prominent Readout Display -->
+<div class="p-3.5 bg-surface-container-lowest border border-outline-variant/40 rounded-lg flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider">MONTO PROMEDIO BOLETA</span>
+<span class="font-headline text-2xl sm:text-3xl text-white font-bold tracking-tight" id="display-bill-clp">
+                  $75.000 <span class="font-mono text-base text-primary-fixed">CLP</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-mono text-[10px] text-secondary font-medium">VOLUMEN MENSUAL CALCULADO</span>
+<span class="font-mono text-lg text-secondary-fixed font-bold" id="display-bill-kwh">
+                  341 <span class="text-[11px] font-normal text-on-surface-variant">kWh/mes</span>
+</span>
+<span class="font-mono text-[10px] text-outline">Factor $220/kWh (Edelaysen)</span>
+</div>
+</div>
+<!-- Interactive Slider -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between font-mono text-[10px] text-on-surface-variant">
+<span>$30.000</span>
+<span class="text-primary-fixed font-bold">$75.000 (Media Austral)</span>
+<span>$150.000</span>
+<span>$250.000</span>
+<span>$400.000+</span>
+</div>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-fixed" id="slider-bill" max="450000" min="30000" oninput="handleSliderChange(this.value)" step="5000" type="range" value="75000"/>
+<div class="flex justify-between text-outline-variant font-mono text-[9px] px-1">
+<span>|</span><span>|</span><span>|</span><span>|</span><span>|</span>
+</div>
+</div>
+<!-- Preset Buttons -->
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="font-mono text-[11px] text-on-surface-variant mr-1">Preajustes:</span>
+<button class="preset-btn px-2.5 py-1 bg-surface-container border border-outline-variant/30 hover:border-outline text-on-surface-variant rounded font-mono text-[11px]" onclick="setBillPreset(45000)">
+                $45.000
+              </button>
+<button class="preset-btn active-preset px-2.5 py-1 bg-primary-fixed/15 border border-primary-fixed/40 text-primary-fixed rounded font-mono text-[11px] font-bold shadow-[0_0_8px_rgba(0,251,251,0.2)]" onclick="setBillPreset(75000)">
+                $75.000 (Activo)
+              </button>
+<button class="preset-btn px-2.5 py-1 bg-surface-container border border-outline-variant/30 hover:border-outline text-on-surface-variant rounded font-mono text-[11px]" onclick="setBillPreset(120000)">
+                $120.000
+              </button>
+<button class="preset-btn px-2.5 py-1 bg-surface-container border border-outline-variant/30 hover:border-outline text-on-surface-variant rounded font-mono text-[11px]" onclick="setBillPreset(180000)">
+                $180.000
+              </button>
+<button class="preset-btn px-2.5 py-1 bg-surface-container border border-outline-variant/30 hover:border-outline text-on-surface-variant rounded font-mono text-[11px]" onclick="setBillPreset(300000)">
+                $300.000+
+              </button>
+</div>
+<!-- Edelaysen Tariff Micro Breakdown -->
+<div class="p-2.5 bg-surface-container-low border border-outline-variant/20 rounded font-mono text-[11px] flex flex-col gap-1">
+<div class="flex justify-between text-on-surface-variant">
+<span>Cargo Fijo Mensual + Transporte de Distribución</span>
+<span class="text-white font-medium">$7.450 CLP</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Energía Base Tarifa BT1 Edelaysen (341 kWh)</span>
+<span class="text-white font-medium">$67.550 CLP</span>
+</div>
+<div class="flex justify-between text-on-surface-variant border-t border-outline-variant/20 pt-1">
+<span>Límite de Invierno (Sobreconsumo estacional Aysén)</span>
+<span class="text-secondary-fixed font-medium">Mitigado 100% por BESS</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ============================================================ -->
+<!-- QUADRANT 2 (CENTER, 5 cols): MAIN DIAGNOSIS CANVAS & GENERATION WAVE GRAPH -->
+<!-- ============================================================ -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="bg-[#041423]/95 border border-outline-variant/30 rounded-xl p-5 lg:p-6 shadow-[0_8px_32px_rgba(0,16,28,0.5)] flex flex-col gap-5 relative overflow-hidden">
+<!-- Concentrated Cyan Glow in Central Diagnostic Hub -->
+<div class="absolute -right-20 -top-20 w-80 h-80 bg-primary-fixed/5 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Header Badge Strip -->
+<div class="flex flex-wrap items-center justify-between gap-2 pb-1 border-b border-outline-variant/20">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 bg-primary-container text-on-primary-container font-mono text-[11px] font-bold rounded tracking-wider shadow-[0_0_12px_rgba(0,251,251,0.3)]">
+                  RECOMENDACIÓN TÉCNICA OFICIAL EFICIAN
+                </span>
+<span class="font-mono text-[11px] text-primary-fixed px-2 py-0.5 bg-surface-container-high border border-outline-variant/40 rounded">
+                  DIAG-ID #AY-2025-94
+                </span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-[11px] text-secondary">
+<span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+<span>Simulación en Tiempo Real</span>
+</div>
+</div>
+<!-- Kit Main Specification Titles -->
+<div class="flex flex-col gap-1">
+<h2 class="font-headline text-xl sm:text-2xl text-white font-bold tracking-tight" id="kit-title">
+                Kit Efician Híbrido 3.5 kW + Respaldo BESS LiFePO4
+              </h2>
+<p class="text-sm text-on-surface-variant leading-relaxed" id="kit-subtitle">
+                Sistema Fotovoltaico con Inversor Híbrido Deye/Growatt 5kW + 8 Paneles Bifaciales 585W + Batería Litio 5.12 kWh 48V (Aislamiento Criogénico).
+              </p>
+</div>
+<!-- SCADA GENERATION WAVE TELEMETRY GRAPH -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 flex flex-col gap-3">
+<div class="flex flex-wrap items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] text-white font-bold tracking-wide">SCADA TELEMETRÍA 24H: CURVA GENERACIÓN vs CONSUMO</span>
+<span class="font-mono text-[10px] px-2 py-0.5 bg-surface-container-high border border-primary-fixed/30 text-primary-fixed rounded font-semibold">Pico: 4.68 kWp</span>
+</div>
+<div class="flex items-center gap-3 font-mono text-[10px]">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-1 bg-primary-fixed rounded-full shadow-[0_0_6px_rgba(0,251,251,0.6)]"></span>
+<span class="text-on-surface-variant">Gen Solar Bifacial</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-1 bg-secondary rounded-full"></span>
+<span class="text-on-surface-variant">Consumo Doméstico</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-1 bg-primary-fixed-dim/60 rounded-full"></span>
+<span class="text-on-surface-variant">Inyección Red Net Billing</span>
+</div>
+</div>
+</div>
+<!-- High-Fidelity SVG Wave Graph -->
+<div class="w-full h-52 relative">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 700 180">
+<defs>
+<lineargradient id="solarGlowModern" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#00fbfb" stop-opacity="0.35"></stop>
+<stop offset="80%" stop-color="#00fbfb" stop-opacity="0.04"></stop>
+<stop offset="100%" stop-color="#00fbfb" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Technical SCADA Grid lines -->
+<line stroke="#133555" stroke-dasharray="2 3" stroke-opacity="0.5" x1="0" x2="700" y1="35" y2="35"></line>
+<line stroke="#133555" stroke-dasharray="2 3" stroke-opacity="0.5" x1="0" x2="700" y1="75" y2="75"></line>
+<line stroke="#133555" stroke-dasharray="2 3" stroke-opacity="0.5" x1="0" x2="700" y1="115" y2="115"></line>
+<line stroke="#1c3852" stroke-opacity="0.8" x1="0" x2="700" y1="155" y2="155"></line>
+<!-- Baseline Solar Wave Area with Gradient -->
+<path d="M 0,155 Q 140,155 200,145 Q 280,30 350,22 Q 420,30 500,145 Q 560,155 700,155 Z" fill="url(#solarGlowModern)"></path>
+<!-- Primary Solar Generation Wave Stroke -->
+<path d="M 0,155 Q 140,155 200,145 Q 280,30 350,22 Q 420,30 500,145 Q 560,155 700,155" fill="none" filter="drop-shadow(0 0 6px rgba(0,251,251,0.5))" stroke="#00fbfb" stroke-width="2.5"></path>
+<!-- Consumption Wave Profile (Dotted Line) -->
+<path d="M 0,135 Q 80,130 150,140 Q 230,115 300,125 Q 380,120 450,110 Q 530,90 620,80 Q 670,105 700,135" fill="none" stroke="#a8caea" stroke-dasharray="4 3" stroke-width="1.8"></path>
+<!-- Active Peak Indicator with Pulsing Ring -->
+<circle class="animate-ping" cx="350" cy="22" fill="#00fbfb" r="6" style="animation-duration: 2s;"></circle>
+<circle cx="350" cy="22" fill="#001523" r="4.5" stroke="#00fbfb" stroke-width="2"></circle>
+<!-- Graph Annotations -->
+<text fill="#00fbfb" font-family="DM Mono" font-size="11" font-weight="600" x="362" y="26">Peak Gen: 4.68 kW (13:15h)</text>
+<text fill="#4a6782" font-family="DM Mono" font-size="10" x="40" y="172">04:00</text>
+<text fill="#4a6782" font-family="DM Mono" font-size="10" x="180" y="172">08:00</text>
+<text fill="#cbe6ff" font-family="DM Mono" font-size="10" font-weight="600" x="330" y="172">12:00 MEDIODÍA</text>
+<text fill="#4a6782" font-family="DM Mono" font-size="10" x="490" y="172">16:00</text>
+<text fill="#4a6782" font-family="DM Mono" font-size="10" x="630" y="172">20:00</text>
+</svg>
+</div>
+<!-- 4 Micro Telemetry Readings below wave graph -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-outline-variant/20">
+<div class="p-2 bg-surface-container-low border border-outline-variant/20 rounded flex items-center justify-between font-mono text-[11px]">
+<span class="text-on-surface-variant text-[10px]">VOLTAJE MPPT</span>
+<span class="text-primary-fixed font-bold">384.2 V</span>
+</div>
+<div class="p-2 bg-surface-container-low border border-outline-variant/20 rounded flex items-center justify-between font-mono text-[11px]">
+<span class="text-on-surface-variant text-[10px]">SOC BATERÍA</span>
+<span class="text-primary-fixed font-bold">98.4%</span>
+</div>
+<div class="p-2 bg-surface-container-low border border-outline-variant/20 rounded flex items-center justify-between font-mono text-[11px]">
+<span class="text-on-surface-variant text-[10px]">PERF. RATIO</span>
+<span class="text-primary-fixed font-bold">84.2%</span>
+</div>
+<div class="p-2 bg-surface-container-low border border-outline-variant/20 rounded flex items-center justify-between font-mono text-[11px]">
+<span class="text-on-surface-variant text-[10px]">TEMP BESS</span>
+<span class="text-secondary font-bold">+18.5°C</span>
+</div>
+</div>
+</div>
+<!-- Technical Callouts (Respaldo Anti-Cortes + Financiamiento) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div class="p-3 bg-surface-container-low border border-outline-variant/30 rounded-lg flex gap-3">
+<div class="w-8 h-8 rounded bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-fixed text-[18px]">shield</span>
+</div>
+<div class="flex flex-col">
+<span class="font-mono text-[12px] text-white font-bold">Respaldo Anti-Cortes de Red Aysén</span>
+<p class="text-[11px] text-on-surface-variant mt-1 leading-relaxed">
+                    Conmutación automática ultra-rápida ante temporales de viento o nieve en el sistema mediano de Edelaysen. Mantiene calefacción aerotérmica y telecomunicaciones activas.
+                  </p>
+</div>
+</div>
+<div class="p-3 bg-surface-container-low border border-outline-variant/30 rounded-lg flex gap-3">
+<div class="w-8 h-8 rounded bg-secondary-container border border-secondary/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-mono text-[12px] text-white font-bold">Financiamiento Cuota = Ahorro</span>
+<p class="text-[11px] text-on-surface-variant mt-1 leading-relaxed">
+                    Opción de $0 inversión inicial: Paga la cuota de instalación directamente con el ahorro neto mensual de la factura de electricidad. Flujo de caja neutro desde el mes 1.
+                  </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ============================================================ -->
+<!-- QUADRANT 3 (RIGHT, 3 cols): EXECUTIVE ROI & IMPACT SUMMARY -->
+<!-- ============================================================ -->
+<div class="lg:col-span-3 flex flex-col gap-6">
+<!-- EXECUTIVE ROI & METRICS TOWER -->
+<div class="bg-[#041423]/95 border border-outline-variant/30 rounded-xl p-5 shadow-[0_8px_24px_rgba(0,16,28,0.5)] flex flex-col gap-4">
+<div class="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+<span class="font-mono text-[11px] text-white font-bold tracking-wider">RESUMEN EJECUTIVO &amp; KPI</span>
+<span class="material-symbols-outlined text-primary-fixed text-[18px]">insights</span>
+</div>
+<!-- 4 Vertical Stacked Key Performance Metrics -->
+<div class="flex flex-col gap-3">
+<!-- Metric 1: Ahorro Anual -->
+<div class="bg-surface-container-low border border-outline-variant/30 p-3.5 rounded-lg flex flex-col justify-between relative overflow-hidden">
+<div class="absolute right-0 top-0 w-24 h-24 bg-primary-fixed/5 rounded-full blur-xl pointer-events-none"></div>
+<span class="font-mono text-[10px] text-on-surface-variant font-medium tracking-wider uppercase">AHORRO ANUAL ESTIMADO</span>
+<div class="my-1.5">
+<span class="font-headline text-2xl lg:text-3xl text-primary-fixed font-bold tracking-tight block" id="metric-saving">
+                    $738.000
+                  </span>
+<span class="font-mono text-[11px] text-secondary">CLP / año neto</span>
+</div>
+<span class="text-[11px] text-outline">10 Años: <strong class="text-white font-mono">$9.4M CLP</strong></span>
+</div>
+<!-- Metric 2: Autoconsumo & Cobertura -->
+<div class="bg-surface-container-low border border-outline-variant/30 p-3.5 rounded-lg flex flex-col justify-between">
+<span class="font-mono text-[10px] text-on-surface-variant font-medium tracking-wider uppercase">COBERTURA ENERGÉTICA</span>
+<div class="my-1.5">
+<span class="font-headline text-2xl lg:text-3xl text-white font-bold tracking-tight block" id="metric-coverage">
+                    76%
+                  </span>
+<span class="font-mono text-[11px] text-primary-fixed">Autosuficiencia Austral</span>
+</div>
+<span class="text-[11px] text-outline">Inyección excedente: 24%</span>
+</div>
+<!-- Metric 3: Retorno de Inversión (ROI) -->
+<div class="bg-surface-container-low border border-outline-variant/30 p-3.5 rounded-lg flex flex-col justify-between">
+<span class="font-mono text-[10px] text-on-surface-variant font-medium tracking-wider uppercase">RETORNO INVERSIÓN (ROI)</span>
+<div class="my-1.5">
+<span class="font-headline text-2xl lg:text-3xl text-primary-fixed-dim font-bold tracking-tight block" id="metric-roi">
+                    4.1 Años
+                  </span>
+<span class="font-mono text-[11px] text-secondary">Payback acelerado</span>
+</div>
+<span class="text-[11px] text-outline">Vida útil sistema: 25+ años</span>
+</div>
+<!-- Metric 4: Respaldo Crítico (EPS) -->
+<div class="bg-surface-container-low border border-outline-variant/30 p-3.5 rounded-lg flex flex-col justify-between">
+<span class="font-mono text-[10px] text-on-surface-variant font-medium tracking-wider uppercase">CONMUTACIÓN EPS</span>
+<div class="my-1.5">
+<span class="font-headline text-2xl lg:text-3xl text-white font-bold tracking-tight block">
+                    &lt; 20 ms
+                  </span>
+<span class="font-mono text-[11px] text-secondary">Cero micro-cortes</span>
+</div>
+<span class="text-[11px] text-outline">Autonomía: <strong class="text-white font-mono">18h críticas</strong></span>
+</div>
+</div>
+<!-- Regulatory & SEC Strip -->
+<div class="p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-lg flex flex-col gap-2 font-mono text-[10px]">
+<div class="flex items-center gap-1.5 text-primary-fixed font-semibold">
+<span class="material-symbols-outlined text-[15px]">verified_user</span>
+<span>Certificación SEC TE-4</span>
+</div>
+<span class="text-on-surface-variant text-[10px] leading-tight">Tramitada y firmada por ingenieros eléctricos colegiados</span>
+<div class="flex flex-col gap-0.5 text-outline text-[10px] pt-1 border-t border-outline-variant/20">
+<span>• Inversor Homologado SEC</span>
+<span>• Protecciones Clase Austral IP65</span>
+<span>• Cumplimiento Ley 21.118</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- BOTTOM CONVERSION & ENGINEERING ACTION BAR -->
+<footer class="w-full bg-[#041423]/95 border border-outline-variant/30 rounded-xl p-4 lg:p-5 shadow-[0_8px_32px_rgba(0,16,28,0.6)] flex flex-col md:flex-row items-center justify-between gap-4 mt-2">
+<!-- Left Corporate Assurance -->
+<div class="flex items-center gap-4">
+<img alt="Efician Solar Austral" class="h-9 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHKaQ3CnPp3x-jsircdQj89MKiNxwJI6dEH_JHpb3X0k6IoJ2eegEJAV7fFpxnaaICn9Dy4Bzc-SW4eV1WCfmsxbCYvu70P-8tVo9STNKTL2k1ON59C-YzJVsnrV5XJlwEWSUs9d4-n7GAU8vg0PFGwpcJekQ5Ayyz0pj1F8G0mO8Bvusl3tSsX1il6x1I6E596YGpQLcZPWD3l7r8Kn_KWfl23d3pSyl0QVzbwdq7BvZUwELTrzSQ9jPZfGVUt_-YZg"/>
+<div class="hidden sm:flex flex-col font-mono text-[11px]">
+<span class="text-white font-bold">Efician SpA • Coyhaique, Región de Aysén</span>
+<span class="text-on-surface-variant">Centro Tecnológico de Ingeniería Solar Austral • Patagonia Chilena</span>
+</div>
+</div>
+<!-- Conversion Action Cluster -->
+<div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+<button class="px-3.5 py-2 rounded bg-surface-container border border-outline-variant/30 hover:border-outline text-on-surface hover:text-white transition-all font-mono text-[12px] flex items-center gap-1.5" onclick="alert('Iniciando coordinación de visita técnica de relevamiento en Coyhaique / Aysén.')">
+<span class="material-symbols-outlined text-[17px]">calendar_month</span>
+<span>Agendar Visita Terreno</span>
+</button>
+<button class="px-3.5 py-2 rounded bg-surface-container-high border border-outline-variant/40 text-white hover:bg-surface-container-highest transition-all font-mono text-[12px] flex items-center gap-1.5" onclick="downloadTechnicalSheet()">
+<span class="material-symbols-outlined text-[17px] text-secondary">download</span>
+<span>Descargar Ficha SEC (PDF)</span>
+</button>
+<a class="px-4 py-2 rounded bg-primary-container text-on-primary-container hover:bg-primary-fixed-dim font-mono text-[12px] font-bold transition-all shadow-[0_0_16px_rgba(0,251,251,0.3)] flex items-center gap-2" href="https://wa.me/56999999999?text=Hola%20Efician%2C%20quisiera%20solicitar%20el%20diagn%C3%B3stico%20t%C3%A9cnico%20fotovoltaico%20para%20Ays%C3%A9n" target="_blank">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+<span>Diagnóstico Técnico vía WhatsApp</span>
+</a>
+</div>
+</footer>
+</main>
+</div>
+<!-- INLINE CLIENT ENGINE (Preserves original calculation math & reactivity) -->
+<script>
+    let currentCustomer = 'residencial';
+    let currentTown = 'Coyhaique';
+    let currentBill = 75000;
+
+    const townData = {
+      'Coyhaique': { ghi: '3.41', hspInv: '1.8 h', hspVer: '5.6 h', factor: 1.0 },
+      'Puerto Aysén': { ghi: '3.12', hspInv: '1.4 h', hspVer: '5.2 h', factor: 0.92 },
+      'Chile Chico': { ghi: '4.05', hspInv: '2.3 h', hspVer: '6.4 h', factor: 1.18 },
+      'Cochrane': { ghi: '3.58', hspInv: '1.9 h', hspVer: '5.8 h', factor: 1.05 }
+    };
+
+    function switchCustomerType(type) {
+      currentCustomer = type;
+      const resBtn = document.getElementById('tab-residencial');
+      const comBtn = document.getElementById('tab-comercial');
+      
+      if (type === 'residencial') {
+        resBtn.className = 'px-3 py-1.5 rounded font-mono text-[12px] bg-surface-container-high text-primary-fixed font-semibold shadow transition-all';
+        comBtn.className = 'px-3 py-1.5 rounded font-mono text-[12px] text-on-surface-variant hover:text-white transition-all';
+        setBillPreset(75000);
+      } else {
+        comBtn.className = 'px-3 py-1.5 rounded font-mono text-[12px] bg-surface-container-high text-primary-fixed font-semibold shadow transition-all';
+        resBtn.className = 'px-3 py-1.5 rounded font-mono text-[12px] text-on-surface-variant hover:text-white transition-all';
+        setBillPreset(250000);
+      }
+    }
+
+    function selectTown(townName, ghi, hspInv, hspVer) {
+      currentTown = townName;
+      document.querySelectorAll('.town-btn').forEach(btn => {
+        btn.className = 'town-btn py-1.5 rounded bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-white text-center transition-all';
+      });
+      event.target.className = 'town-btn active-town py-1.5 rounded bg-surface-container-high border border-primary-fixed/40 text-primary-fixed font-bold text-center transition-all shadow-[0_0_10px_rgba(0,251,251,0.15)]';
+
+      document.getElementById('active-location-name').innerText = townName + ' (Zona Aysén)';
+      document.getElementById('val-ghi').innerHTML = ghi + ' <span class="text-on-surface-variant font-normal text-[10px]">kWh/m²</span>';
+      document.getElementById('val-hsp-inv').innerHTML = hspInv + ' h <span class="text-on-surface-variant font-normal text-[10px]">/día</span>';
+      document.getElementById('val-hsp-ver').innerHTML = hspVer + ' h <span class="text-on-surface-variant font-normal text-[10px]">/día</span>';
+      recalculate();
+    }
+
+    function handleSliderChange(val) {
+      currentBill = parseInt(val);
+      updateBillDisplay();
+      recalculate();
+    }
+
+    function setBillPreset(amount) {
+      currentBill = amount;
+      document.getElementById('slider-bill').value = amount;
+      
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.className = 'preset-btn px-2.5 py-1 bg-surface-container border border-outline-variant/30 hover:border-outline text-on-surface-variant rounded font-mono text-[11px]';
+      });
+      if(event && event.target && event.target.classList.contains('preset-btn')) {
+        event.target.className = 'preset-btn active-preset px-2.5 py-1 bg-primary-fixed/15 border border-primary-fixed/40 text-primary-fixed rounded font-mono text-[11px] font-bold shadow-[0_0_8px_rgba(0,251,251,0.2)]';
+      }
+      updateBillDisplay();
+      recalculate();
+    }
+
+    function updateBillDisplay() {
+      const formatted = new Intl.NumberFormat('es-CL').format(currentBill);
+      document.getElementById('display-bill-clp').innerHTML = '$' + formatted + ' <span class="font-mono text-base text-primary-fixed">CLP</span>';
+      const kwh = Math.round(currentBill / 220);
+      document.getElementById('display-bill-kwh').innerHTML = kwh + ' <span class="text-[11px] font-normal text-on-surface-variant">kWh/mes</span>';
+    }
+
+    function recalculate() {
+      const townFactor = (townData[currentTown] && townData[currentTown].factor) || 1.0;
+      
+      if (currentBill <= 90000) {
+        document.getElementById('kit-title').innerText = 'Kit Efician Híbrido 3.5 kW + Respaldo BESS LiFePO4';
+        document.getElementById('kit-subtitle').innerText = 'Sistema Fotovoltaico con Inversor Híbrido Deye 5kW + 8 Paneles Bifaciales 585W + Batería Litio 5.12 kWh 48V (Aislamiento Criogénico).';
+        const annualSaving = Math.round(currentBill * 12 * 0.82 * townFactor);
+        document.getElementById('metric-saving').innerText = '$' + new Intl.NumberFormat('es-CL').format(annualSaving);
+        document.getElementById('metric-coverage').innerText = Math.min(88, Math.round(76 * townFactor)) + '%';
+        document.getElementById('metric-roi').innerText = (4.1 / townFactor).toFixed(1) + ' Años';
+      } else if (currentBill <= 180000) {
+        document.getElementById('kit-title').innerText = 'Kit Efician Pro Híbrido 6.0 kW + BESS LiFePO4 10 kWh';
+        document.getElementById('kit-subtitle').innerText = '12 Paneles Fotovoltaicos Bifaciales 585W N-Type + Inversor Híbrido 6kW Trifásico/Monofásico + 2x Baterías Litio Rack 5.12 kWh.';
+        const annualSaving = Math.round(currentBill * 12 * 0.85 * townFactor);
+        document.getElementById('metric-saving').innerText = '$' + new Intl.NumberFormat('es-CL').format(annualSaving);
+        document.getElementById('metric-coverage').innerText = Math.min(92, Math.round(82 * townFactor)) + '%';
+        document.getElementById('metric-roi').innerText = (3.8 / townFactor).toFixed(1) + ' Años';
+      } else {
+        document.getElementById('kit-title').innerText = 'Sistema Comercial Austral 12.0 kW + BESS Industrial 15-20 kWh';
+        document.getElementById('kit-subtitle').innerText = 'Solución Comercial para Lodges/Cabañas de Turismo: 22 Paneles 585W TOPCon + Inversor Híbrido 12kW + Banco LiFePO4 Alta Densidad.';
+        const annualSaving = Math.round(currentBill * 12 * 0.89 * townFactor);
+        document.getElementById('metric-saving').innerText = '$' + new Intl.NumberFormat('es-CL').format(annualSaving);
+        document.getElementById('metric-coverage').innerText = Math.min(95, Math.round(88 * townFactor)) + '%';
+        document.getElementById('metric-roi').innerText = (3.4 / townFactor).toFixed(1) + ' Años';
+      }
+    }
+
+    function downloadTechnicalSheet() {
+      alert('Generando Memoria de Cálculo y Formulario SEC TE-4 oficial en PDF para: ' + currentTown + ' (Tarifa BT-1 / ' + currentBill + ' CLP).');
+    }
+  </script>
+</body></html>

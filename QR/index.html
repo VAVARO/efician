@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Código QR Permanente - Efician</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--border);
+      max-width: 440px;
+      width: 100%;
+      padding: 32px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 18px;
+    }
+    .qr-container {
+      background: #ffffff;
+      padding: 16px;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .qr-container img {
+      display: block;
+      width: 240px;
+      height: 240px;
+    }
+    .url {
+      font-family: monospace;
+      font-size: 0.95rem;
+      color: var(--primary);
+      text-decoration: none;
+      word-break: break-all;
+      display: inline-block;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .url:hover {
+      text-decoration: underline;
+    }
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 20px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <span class="badge">✓ Sin caducidad (Estático permanente)</span>
+    <h1>Efician</h1>
+    <a class="url" href="https://www.efician.cl" target="_blank" rel="noopener">https://www.efician.cl</a>
+
+    <div class="qr-container">
+      <img src="qr_efician_1000x1000.png" alt="Código QR Efician" />
+    </div>
+
+    <div class="buttons">
+      <a href="qr_efician_1000x1000.png" download="efician_qr_1000x1000.png" class="btn btn-primary">
+        Descargar PNG (Alta Resolución 1000x1000)
+      </a>
+      <a href="qr_efician.svg" download="efician_qr.svg" class="btn btn-outline">
+        Descargar SVG (Vectorial para imprenta)
+      </a>
+    </div>
+
+    <p class="note">
+      Este código QR contiene codificada directamente la URL en su matriz óptica. No depende de ningún servicio de redirección, cuenta ni suscripción. Funcionará de por vida.
+    </p>
+  </div>
+
+</body>
+</html>
