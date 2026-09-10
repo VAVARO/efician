@@ -280,6 +280,39 @@
     .leaflet-control-attribution a {
       color: #38BDF8 !important;
     }
+
+    /* Estilos de Dibujo y Medición de Techos (Clean Engineering) */
+    .map-crosshair-mode, .map-crosshair-mode .leaflet-container {
+      cursor: crosshair !important;
+    }
+    .roof-vertex-icon {
+      background: transparent;
+      border: none;
+    }
+    .roof-vertex-marker {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #0284C7;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 0 6px rgba(2, 132, 199, 0.8);
+      cursor: pointer;
+      transition: transform 120ms ease;
+    }
+    .roof-vertex-marker:hover {
+      transform: scale(1.3);
+      background: #00A8C6;
+    }
+    .roof-first-vertex {
+      background: #059669 !important;
+      box-shadow: 0 0 10px rgba(5, 150, 105, 0.9) !important;
+      animation: vertexPulse 1.5s infinite;
+    }
+    @keyframes vertexPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
@@ -929,6 +962,28 @@
                       <span id="map-hud-zoom-badge">SATÉLITE GOOGLE HÍBRIDO // NIVEL TECHO</span>
                     </div>
 
+                    <!-- Barra Superior Derecha: Botones Modo Medición de Techo -->
+                    <div class="absolute top-2.5 right-2.5 z-[1000] flex items-center gap-1.5">
+                      <button type="button" id="btn-draw-roof" onclick="toggleRoofDrawingMode()" class="px-2.5 py-1 rounded-lg bg-slate-900/85 hover:bg-slate-800 text-cyan-300 hover:text-white font-mono text-[11px] font-semibold border border-cyan-500/40 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                        <span id="btn-draw-roof-label">Medir Techo</span>
+                      </button>
+
+                      <div id="roof-drawing-active-controls" class="hidden flex items-center gap-1">
+                        <button type="button" id="btn-finish-roof" onclick="finishDrawingRoof()" disabled class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:pointer-events-none text-white font-mono text-[11px] font-semibold shadow-sm transition-all flex items-center gap-1">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                          <span>Cerrar Polígono</span>
+                        </button>
+                        <button type="button" id="btn-cancel-roof" onclick="cancelRoofDrawing()" class="px-2 py-1 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white font-mono text-[11px] border border-slate-700 backdrop-blur-md transition-all">
+                          Cancelar
+                        </button>
+                      </div>
+
+                      <button type="button" id="btn-clear-roof" onclick="clearRoofDrawing()" class="hidden px-2 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 font-mono text-[11px] border border-slate-700 hover:border-rose-700 backdrop-blur-md transition-all" title="Eliminar delimitación del techo">
+                        Borrar
+                      </button>
+                    </div>
+
                     <!-- Canvas Leaflet -->
                     <div id="solar-rooftop-map" class="w-full h-80 sm:h-96 z-0"></div>
 
@@ -942,6 +997,38 @@
                         <span id="map-hud-elevation" class="text-slate-400">Elevación: ~284m</span>
                         <span class="text-slate-600">|</span>
                         <span id="map-hud-hint" class="text-emerald-400 font-medium">Arrastra o haz clic sobre tu techo</span>
+                      </div>
+                    </div>
+
+                    <!-- Panel HUD de Medición de Techo (Polígono Geodésico) -->
+                    <div id="roof-measure-hud" class="hidden bg-slate-950 text-white px-3.5 py-3 border-t border-cyan-900/50">
+                      <div class="flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+                        <div class="flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                          <span class="text-cyan-300 font-bold uppercase tracking-wider text-[11px]">Dimensionamiento de Techumbre:</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px] text-slate-300">
+                          <span id="roof-measure-instruction">Haz clic en cada esquina de tu techo</span>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5 pt-2.5 border-t border-slate-800/80 text-center font-mono">
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                          <span class="text-[10px] text-slate-400 block">Superficie Total</span>
+                          <span id="roof-metric-total-area" class="text-base font-bold text-white tabular-num">0.0 m²</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                          <span class="text-[10px] text-cyan-400 block">Área Útil (80%)</span>
+                          <span id="roof-metric-usable-area" class="text-base font-bold text-cyan-300 tabular-num">0.0 m²</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                          <span class="text-[10px] text-slate-400 block">Capacidad Máx.</span>
+                          <span id="roof-metric-max-panels" class="text-base font-bold text-emerald-400 tabular-num">0 paneles</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                          <span class="text-[10px] text-slate-400 block">Potencia Techo</span>
+                          <span id="roof-metric-max-kwp" class="text-base font-bold text-amber-400 tabular-num">0.0 kWp</span>
+                        </div>
                       </div>
                     </div>
 
@@ -1154,9 +1241,13 @@
                   <span>Almacenamiento térmico:</span>
                   <strong class="text-slate-900 font-mono" id="rec-kit-storage">Batería LiFePO4 5.12 kWh</strong>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-100">
-                  <span>Área estimada en techo:</span>
-                  <strong class="text-slate-900 font-mono" id="rec-kit-area">26 m²</strong>
+                <div class="py-1.5 border-b border-slate-100">
+                  <div class="flex justify-between items-center">
+                    <span>Área estimada en techo:</span>
+                    <strong class="text-slate-900 font-mono" id="rec-kit-area">26 m²</strong>
+                  </div>
+                  <!-- Validación en vivo contra techumbre medida -->
+                  <div id="rec-roof-validation-badge" class="hidden mt-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md"></div>
                 </div>
               </div>
 
@@ -2179,6 +2270,10 @@
               <span>Generación Máxima de Verano (Diciembre):</span>
               <strong class="font-mono text-emerald-700" id="rep-val-summer">148 kWh / kWp</strong>
             </div>
+            <div id="rep-row-roof" class="hidden px-3.5 py-2 flex justify-between bg-sky-50/60">
+              <span class="text-sky-900 font-medium">Techumbre Medida en Satélite:</span>
+              <strong class="font-mono text-sky-900" id="rep-val-roof">0 m² útiles</strong>
+            </div>
           </div>
         </div>
 
@@ -2860,6 +2955,15 @@
         annualYieldPerKwp: 1323,
         monthlyYieldPerKwp: [122, 110, 105, 85, 78, 76, 80, 92, 102, 120, 135, 148],
         isLiveApi: false
+      },
+      roofMeasurement: {
+        active: false,
+        points: [],
+        areaTotal: 0,
+        areaUsable: 0,
+        maxPanels: 0,
+        maxKwp: 0,
+        centroid: null
       }
     };
 
@@ -3696,6 +3800,13 @@
     };
     const AYSEN_LANDMARKS = CHILE_LANDMARKS;
 
+    // Variables de control de medición geodésica de techos
+    let isDrawingRoof = false;
+    let roofPoints = [];
+    let roofPolygonLayer = null;
+    let roofTempLineLayer = null;
+    let roofVertexMarkers = [];
+
     function initRooftopMap() {
       if (rooftopMap) return;
       const container = document.getElementById('solar-rooftop-map');
@@ -3746,13 +3857,24 @@
 
       // 5. Eventos: Arrastrar pin o hacer clic directo sobre el mapa
       rooftopMarker.on('dragend', function (e) {
+        if (isDrawingRoof) return;
         const pos = e.target.getLatLng();
         handleMapLocationSelect(pos.lat, pos.lng, 'Techo Seleccionado');
       });
 
       rooftopMap.on('click', function (e) {
-        rooftopMarker.setLatLng(e.latlng);
-        handleMapLocationSelect(e.latlng.lat, e.latlng.lng, 'Techo Seleccionado');
+        if (isDrawingRoof) {
+          addRoofVertex(e.latlng);
+        } else {
+          rooftopMarker.setLatLng(e.latlng);
+          handleMapLocationSelect(e.latlng.lat, e.latlng.lng, 'Techo Seleccionado');
+        }
+      });
+
+      rooftopMap.on('dblclick', function (e) {
+        if (isDrawingRoof && roofPoints.length >= 3) {
+          finishDrawingRoof();
+        }
       });
 
       rooftopMap.on('zoomend', function() {
@@ -3768,6 +3890,346 @@
       });
 
       updateMapHud(startLat, startLon, 284);
+    }
+
+    // =============================================================
+    // MOTOR DE DIBUJO Y MEDICIÓN GEODÉSICA DE TECHUMBRES
+    // =============================================================
+    
+    // Cálculo de área geodésica WGS84 para polígonos de techos (fórmula esférica Gauss proyectada)
+    function calculateGeodesicPolygonArea(latlngs) {
+      if (!latlngs || latlngs.length < 3) return 0;
+      const R = 6378137; // Radio ecuatorial WGS84 en metros
+      const avgLat = latlngs.reduce((acc, p) => acc + p.lat, 0) / latlngs.length;
+      const latRad = avgLat * Math.PI / 180;
+      const cosLat = Math.cos(latRad);
+
+      let area = 0;
+      const n = latlngs.length;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        const xi = latlngs[i].lng * (Math.PI / 180) * R * cosLat;
+        const yi = latlngs[i].lat * (Math.PI / 180) * R;
+        const xj = latlngs[j].lng * (Math.PI / 180) * R * cosLat;
+        const yj = latlngs[j].lat * (Math.PI / 180) * R;
+        area += (xi * yj) - (xj * yi);
+      }
+      return Math.abs(area / 2.0);
+    }
+
+    function calculatePolygonCentroid(latlngs) {
+      if (!latlngs || latlngs.length === 0) return null;
+      let sumLat = 0;
+      let sumLng = 0;
+      latlngs.forEach(p => {
+        sumLat += p.lat;
+        sumLng += p.lng;
+      });
+      return {
+        lat: sumLat / latlngs.length,
+        lng: sumLng / latlngs.length
+      };
+    }
+
+    function toggleRoofDrawingMode() {
+      if (isDrawingRoof) {
+        cancelRoofDrawing();
+      } else {
+        startDrawingRoof();
+      }
+    }
+
+    function startDrawingRoof() {
+      if (!rooftopMap) initRooftopMap();
+      if (!rooftopMap) return;
+
+      isDrawingRoof = true;
+      roofPoints = [];
+
+      // Limpiar polígono previo si existía
+      if (roofPolygonLayer) {
+        rooftopMap.removeLayer(roofPolygonLayer);
+        roofPolygonLayer = null;
+      }
+      clearRoofTempLayers();
+
+      // Desactivar zoom por doble clic para permitir cerrar el polígono con doble clic
+      rooftopMap.doubleClickZoom.disable();
+
+      // Cambiar cursor a cruz técnica
+      const mapContainer = document.getElementById('solar-rooftop-map');
+      if (mapContainer) mapContainer.classList.add('map-crosshair-mode');
+
+      // Actualizar UI
+      const btnDraw = document.getElementById('btn-draw-roof');
+      const activeControls = document.getElementById('roof-drawing-active-controls');
+      const btnFinish = document.getElementById('btn-finish-roof');
+      const btnClear = document.getElementById('btn-clear-roof');
+      const hud = document.getElementById('roof-measure-hud');
+      const instruction = document.getElementById('roof-measure-instruction');
+
+      if (btnDraw) btnDraw.classList.add('hidden');
+      if (activeControls) activeControls.classList.remove('hidden');
+      if (btnFinish) btnFinish.disabled = true;
+      if (btnClear) btnClear.classList.add('hidden');
+      if (hud) hud.classList.remove('hidden');
+      if (instruction) instruction.textContent = 'Haz clic en la primera esquina de tu techo';
+
+      // Resetear números en el HUD
+      document.getElementById('roof-metric-total-area').textContent = '0.0 m²';
+      document.getElementById('roof-metric-usable-area').textContent = '0.0 m²';
+      document.getElementById('roof-metric-max-panels').textContent = '0 paneles';
+      document.getElementById('roof-metric-max-kwp').textContent = '0.0 kWp';
+    }
+
+    function addRoofVertex(latlng) {
+      if (!isDrawingRoof || !rooftopMap) return;
+
+      roofPoints.push(latlng);
+      const vertexIdx = roofPoints.length - 1;
+
+      // Crear icono de vértice
+      const isFirst = (vertexIdx === 0);
+      const vertexIcon = L.divIcon({
+        className: 'roof-vertex-icon',
+        html: `<div class="roof-vertex-marker ${isFirst ? 'roof-first-vertex' : ''}" title="${isFirst ? 'Haz clic para cerrar polígono' : 'Vértice ' + (vertexIdx + 1)}"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+
+      const marker = L.marker([latlng.lat, latlng.lng], { icon: vertexIcon, zIndexOffset: 2000 }).addTo(rooftopMap);
+      
+      if (isFirst) {
+        marker.on('click', function(e) {
+          L.DomEvent.stopPropagation(e);
+          if (roofPoints.length >= 3) {
+            finishDrawingRoof();
+          }
+        });
+      }
+
+      roofVertexMarkers.push(marker);
+
+      // Actualizar línea guía temporal
+      if (!roofTempLineLayer) {
+        roofTempLineLayer = L.polyline(roofPoints, {
+          color: '#00A8C6',
+          weight: 2,
+          dashArray: '4, 4'
+        }).addTo(rooftopMap);
+      } else {
+        roofTempLineLayer.setLatLngs(roofPoints);
+      }
+
+      // Habilitar botón de cierre si hay 3 o más esquinas
+      const btnFinish = document.getElementById('btn-finish-roof');
+      const instruction = document.getElementById('roof-measure-instruction');
+
+      if (roofPoints.length >= 3) {
+        if (btnFinish) btnFinish.disabled = false;
+        if (instruction) instruction.textContent = `Vértices: ${roofPoints.length}. Haz clic en 'Cerrar Polígono' o en el punto verde.`;
+
+        // Previsualización de área en vivo
+        const currentArea = calculateGeodesicPolygonArea(roofPoints);
+        const usable = currentArea * 0.80;
+        const panels = Math.floor(usable / 2.40);
+        const kwp = (panels * 0.55).toFixed(1);
+
+        document.getElementById('roof-metric-total-area').textContent = `${currentArea.toFixed(1)} m²`;
+        document.getElementById('roof-metric-usable-area').textContent = `${usable.toFixed(1)} m²`;
+        document.getElementById('roof-metric-max-panels').textContent = `${panels} paneles`;
+        document.getElementById('roof-metric-max-kwp').textContent = `${kwp} kWp`;
+      } else {
+        if (instruction) instruction.textContent = `Vértice ${roofPoints.length} marcado. Haz clic en la siguiente esquina.`;
+      }
+    }
+
+    function finishDrawingRoof() {
+      if (!isDrawingRoof || roofPoints.length < 3 || !rooftopMap) return;
+
+      isDrawingRoof = false;
+
+      // Limpiar capas temporales (marcadores y líneas segmentadas)
+      clearRoofTempLayers();
+
+      // Restaurar zoom por doble clic y cursor
+      rooftopMap.doubleClickZoom.enable();
+      const mapContainer = document.getElementById('solar-rooftop-map');
+      if (mapContainer) mapContainer.classList.remove('map-crosshair-mode');
+
+      // Trazar polígono cerrado final con diseño técnico limpio
+      roofPolygonLayer = L.polygon(roofPoints, {
+        color: '#0284C7',
+        weight: 2.5,
+        opacity: 0.95,
+        fillColor: '#00A8C6',
+        fillOpacity: 0.38
+      }).addTo(rooftopMap);
+
+      // Calcular métricas solares reales a partir de la geometría geodésica
+      const areaTotal = calculateGeodesicPolygonArea(roofPoints);
+      const areaUsable = areaTotal * 0.80; // 80% aprovechable
+      const maxPanels = Math.floor(areaUsable / 2.40); // 2.40 m2 por módulo 550W
+      const maxKwp = Number((maxPanels * 0.55).toFixed(1));
+
+      // Calcular centroide para situar el pin de telemetría y consultar la API
+      const centroid = calculatePolygonCentroid(roofPoints);
+
+      // Guardar en el estado global
+      appState.roofMeasurement = {
+        active: true,
+        points: roofPoints,
+        areaTotal,
+        areaUsable,
+        maxPanels,
+        maxKwp,
+        centroid
+      };
+
+      // Mover el pin de satélite al centroide del techo
+      if (centroid && rooftopMarker) {
+        rooftopMarker.setLatLng([centroid.lat, centroid.lng]);
+        handleMapLocationSelect(centroid.lat, centroid.lng, 'Techo Delimitado');
+      }
+
+      // Actualizar HUD
+      document.getElementById('roof-metric-total-area').textContent = `${areaTotal.toFixed(1)} m²`;
+      document.getElementById('roof-metric-usable-area').textContent = `${areaUsable.toFixed(1)} m²`;
+      document.getElementById('roof-metric-max-panels').textContent = `${maxPanels} paneles (550W)`;
+      document.getElementById('roof-metric-max-kwp').textContent = `${maxKwp} kWp`;
+
+      const instruction = document.getElementById('roof-measure-instruction');
+      if (instruction) instruction.textContent = `Techumbre delimitada (${roofPoints.length} vértices) // Centroide telemetría calibrado`;
+
+      // Actualizar botones de control
+      const btnDraw = document.getElementById('btn-draw-roof');
+      const activeControls = document.getElementById('roof-drawing-active-controls');
+      const btnClear = document.getElementById('btn-clear-roof');
+
+      if (btnDraw) {
+        btnDraw.classList.remove('hidden');
+        document.getElementById('btn-draw-roof-label').textContent = 'Redibujar Techo';
+      }
+      if (activeControls) activeControls.classList.add('hidden');
+      if (btnClear) btnClear.classList.remove('hidden');
+
+      // Validar compatibilidad con el kit recomendado actualmente
+      validateRoofKitCompatibility();
+    }
+
+    function cancelRoofDrawing() {
+      isDrawingRoof = false;
+      roofPoints = [];
+      clearRoofTempLayers();
+
+      if (rooftopMap) {
+        rooftopMap.doubleClickZoom.enable();
+      }
+      const mapContainer = document.getElementById('solar-rooftop-map');
+      if (mapContainer) mapContainer.classList.remove('map-crosshair-mode');
+
+      const btnDraw = document.getElementById('btn-draw-roof');
+      const activeControls = document.getElementById('roof-drawing-active-controls');
+      const btnClear = document.getElementById('btn-clear-roof');
+      const hud = document.getElementById('roof-measure-hud');
+
+      if (btnDraw) btnDraw.classList.remove('hidden');
+      if (activeControls) activeControls.classList.add('hidden');
+
+      // Si había una medición previa activa, mantener el botón borrar y el HUD
+      if (appState.roofMeasurement && appState.roofMeasurement.active) {
+        if (btnClear) btnClear.classList.remove('hidden');
+        if (hud) hud.classList.remove('hidden');
+      } else {
+        if (btnClear) btnClear.classList.add('hidden');
+        if (hud) hud.classList.add('hidden');
+      }
+    }
+
+    function clearRoofDrawing() {
+      isDrawingRoof = false;
+      roofPoints = [];
+      clearRoofTempLayers();
+
+      if (roofPolygonLayer && rooftopMap) {
+        rooftopMap.removeLayer(roofPolygonLayer);
+        roofPolygonLayer = null;
+      }
+
+      appState.roofMeasurement = {
+        active: false,
+        points: [],
+        areaTotal: 0,
+        areaUsable: 0,
+        maxPanels: 0,
+        maxKwp: 0,
+        centroid: null
+      };
+
+      const btnDraw = document.getElementById('btn-draw-roof');
+      const lblDraw = document.getElementById('btn-draw-roof-label');
+      const activeControls = document.getElementById('roof-drawing-active-controls');
+      const btnClear = document.getElementById('btn-clear-roof');
+      const hud = document.getElementById('roof-measure-hud');
+      const badge = document.getElementById('rec-roof-validation-badge');
+
+      if (btnDraw) btnDraw.classList.remove('hidden');
+      if (lblDraw) lblDraw.textContent = 'Medir Techo';
+      if (activeControls) activeControls.classList.add('hidden');
+      if (btnClear) btnClear.classList.add('hidden');
+      if (hud) hud.classList.add('hidden');
+      if (badge) badge.classList.add('hidden');
+    }
+
+    function clearRoofTempLayers() {
+      if (roofTempLineLayer && rooftopMap) {
+        rooftopMap.removeLayer(roofTempLineLayer);
+        roofTempLineLayer = null;
+      }
+      if (roofVertexMarkers.length > 0 && rooftopMap) {
+        roofVertexMarkers.forEach(m => rooftopMap.removeLayer(m));
+        roofVertexMarkers = [];
+      }
+    }
+
+    function validateRoofKitCompatibility() {
+      const badge = document.getElementById('rec-roof-validation-badge');
+      if (!badge) return;
+
+      if (!appState.roofMeasurement || !appState.roofMeasurement.active) {
+        badge.classList.add('hidden');
+        return;
+      }
+
+      const usableArea = appState.roofMeasurement.areaUsable;
+      const kitId = appState.recommendedKitId || 'kit-3-2';
+      const kit = KITS_DATABASE[kitId];
+      if (!kit) return;
+
+      const kitAreaNum = parseFloat(kit.area) || 26; // 16, 26, 42, 58
+      badge.classList.remove('hidden');
+
+      if (usableArea >= kitAreaNum) {
+        const pct = Math.round((kitAreaNum / usableArea) * 100);
+        badge.className = 'mt-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md text-emerald-700 bg-emerald-50 border border-emerald-200 flex items-center justify-between';
+        badge.innerHTML = `
+          <span class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <strong>Compatible:</strong> Cabe en tu techo
+          </span>
+          <span class="text-emerald-800 font-bold tabular-num">${pct}% útil (${usableArea.toFixed(0)} m²)</span>
+        `;
+      } else {
+        const deficit = (kitAreaNum - usableArea).toFixed(0);
+        badge.className = 'mt-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md text-amber-800 bg-amber-50 border border-amber-200 flex items-center justify-between';
+        badge.innerHTML = `
+          <span class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <strong>Atención:</strong> Excede techumbre (${kitAreaNum} m²)
+          </span>
+          <span class="text-amber-900 font-bold tabular-num">Útil: ${usableArea.toFixed(0)} m² (-${deficit} m²)</span>
+        `;
+      }
     }
 
     function updateMapHud(lat, lon, elevation) {
@@ -4474,6 +4936,9 @@
       document.getElementById('rec-kit-area').textContent = kit.area;
       document.getElementById('rec-kit-price').textContent = `$${kit.price.toLocaleString('es-CL')}`;
 
+      // Validar compatibilidad en tiempo real con la techumbre medida en satélite
+      validateRoofKitCompatibility();
+
       // Guardar cálculos para el reporte completo
       appState.lastCalculation = {
         annualSavingsClp,
@@ -4515,6 +4980,18 @@
       document.getElementById('rep-val-winter').textContent = `${appState.solarSite.monthlyYieldPerKwp[5]} kWh / kWp (${activeCalc.kitMonthlyGenerationKwh[5]} kWh Kit)`;
       document.getElementById('rep-val-summer').textContent = `${appState.solarSite.monthlyYieldPerKwp[11]} kWh / kWp (${activeCalc.kitMonthlyGenerationKwh[11]} kWh Kit)`;
 
+      // Ficha de techumbre medida en satélite si está activa
+      const rowRoof = document.getElementById('rep-row-roof');
+      const valRoof = document.getElementById('rep-val-roof');
+      if (appState.roofMeasurement && appState.roofMeasurement.active) {
+        if (rowRoof) rowRoof.classList.remove('hidden');
+        if (valRoof) {
+          valRoof.textContent = `${appState.roofMeasurement.areaTotal.toFixed(1)} m² total (${appState.roofMeasurement.areaUsable.toFixed(1)} m² útiles // máx ${appState.roofMeasurement.maxPanels} paneles)`;
+        }
+      } else {
+        if (rowRoof) rowRoof.classList.add('hidden');
+      }
+
       document.getElementById('rep-kit-name').textContent = `${kit.name} (${kit.power})`;
       document.getElementById('rep-kit-details').textContent = `${kit.type} // ${kit.panels} // ${kit.inverter} // ${kit.storage}`;
       document.getElementById('rep-val-savings').textContent = `$${activeCalc.annualSavingsClp.toLocaleString('es-CL')} CLP/año`;
@@ -4534,12 +5011,17 @@
       const lead = appState.lead;
       const site = appState.solarSite;
 
+      let roofText = '';
+      if (appState.roofMeasurement && appState.roofMeasurement.active) {
+        roofText = `\n*Superficie Techo Medida:* ${appState.roofMeasurement.areaTotal.toFixed(1)} m² (${appState.roofMeasurement.areaUsable.toFixed(1)} m² útiles // máx ${appState.roofMeasurement.maxPanels} paneles)`;
+      }
+
       const text = `*SOLICITUD DE DOSSIER TÉCNICO // EFICIAN AUSTRAL*
 ----------------------------------------
 *Cliente:* ${lead.name}
 *Correo:* ${lead.email}
 *Tipo:* ${lead.clientType === 'empresa' ? 'Empresa' : 'Domicilio / Parcela'}
-*Ubicación:* ${site.communeLabel} (Lat ${site.lat.toFixed(3)}, Lon ${site.lon.toFixed(3)})
+*Ubicación:* ${site.communeLabel} (Lat ${site.lat.toFixed(3)}, Lon ${site.lon.toFixed(3)})${roofText}
 *Conexión:* ${site.supplyType === 'offgrid' ? 'Parcela Aislada (Off-Grid)' : 'Con Red (Edelaysén)'}
 ----------------------------------------
 *Kit Sugerido:* ${kit.name} (${kit.power})
