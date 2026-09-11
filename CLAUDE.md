@@ -1,4 +1,4 @@
-﻿# EFICIAN // Plataforma e Ingeniería Fotovoltaica Austral
+# EFICIAN // Plataforma e Ingeniería Fotovoltaica Austral
 
 ## Tech Stack
 - **Frontend:** HTML5 semántico, Tailwind CSS (vía CDN oficial), Vanilla JavaScript (ES6+ moderno).
@@ -7,7 +7,8 @@
 - **Despliegue y Hosting:** GitHub Pages (estático, 100% serverless, HTTPS automático, compatible con www.efician.cl).
 
 ## Estructura del Proyecto
-- index.html: Núcleo de la plataforma. Integra la calculadora solar austral, selector de comunas de Aysén, mapa interactivo, catálogo de kits y cotizador directo vía WhatsApp.
+- index.html: Núcleo de la plataforma. Integra la calculadora solar austral, selector de comunas de Aysén, mapa interactivo, catálogo de kits, cotizador directo vía WhatsApp y **Modo Dueño (Visor Interno estilo Airbnb)** con Micro-CRM y Editor de Precios.
+- google_apps_script_efician.js: Webhook serverless gratuito para Google Apps Script que sincroniza leads y precios con Google Sheets.
 - logo-efician.png: Identificador corporativo estandarizado para favicon, Apple touch icon y vista previa en redes sociales (Open Graph).
 - QR/: Códigos QR vectoriales y de alta resolución para impresión en stands de ferias, tarjetas y afiches.
 - stitch_efician_solar_sizing_app/: Prototipo de interfaz y especificación de diseño (DESIGN.md).

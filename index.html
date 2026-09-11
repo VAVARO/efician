@@ -336,6 +336,11 @@
       #order-success-modal,
       #cart-drawer,
       #cart-drawer-backdrop,
+      #owner-drawer,
+      #owner-drawer-backdrop,
+      #owner-auth-modal-backdrop,
+      #owner-auth-modal,
+      #owner-toast,
       #lead-report-toolbar,
       .no-print {
         display: none !important;
@@ -474,6 +479,14 @@
             </span>
           </button>
 
+          <!-- Botón Modo Dueño / Acceso Socios (Airbnb Host Mode) -->
+          <button onclick="handleOwnerTrigger()" id="btn-owner-trigger" class="relative p-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors btn-tactile" title="Modo Dueño // Acceso Socios" aria-label="Acceso Socios">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span id="owner-active-indicator" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+          </button>
+
           <!-- Contacto Directo WhatsApp -->
           <a href="https://wa.me/56992126081?text=Hola%20Efician%2C%20quisiera%20hacer%20una%20consulta." target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs font-body transition-colors btn-tactile shadow-sm" title="Contactar por WhatsApp">
             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -499,6 +512,13 @@
         <button onclick="switchTab('servicios'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-800 hover:bg-slate-100">Servicios</button>
         <button onclick="switchTab('info'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-800 hover:bg-slate-100">Información</button>
         <button onclick="switchTab('nosotros'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-800 hover:bg-slate-100">Nosotros</button>
+        <button onclick="handleOwnerTrigger(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-100 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>Modo Dueño (Socios)</span>
+          </span>
+          <span class="font-mono text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded font-semibold border border-sky-200">PIN</span>
+        </button>
         <div class="pt-2 border-t border-slate-100">
           <a href="https://wa.me/56992126081?text=Hola%20Efician%2C%20quisiera%20hacer%20una%20consulta." target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-slate-900 text-white font-medium text-xs font-body">
             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -660,14 +680,14 @@
               <span class="font-mono text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700">Monofásico</span>
               <span class="text-xs font-mono text-slate-500">Tier 1</span>
             </div>
-            <h3 class="font-headline text-xl font-bold text-slate-900">Lorem Ipsum Kit 3.2 kW</h3>
-            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2">Potencia: 3.2 kWp // On-Grid</p>
+            <h3 class="font-headline text-xl font-bold text-slate-900" id="shop-name-kit-3-2">Lorem Ipsum Kit 3.2 kW</h3>
+            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2" id="shop-power-kit-3-2">Potencia: 3.2 kWp // On-Grid</p>
             <p class="text-xs text-slate-600 font-body leading-relaxed mb-4">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
             
             <div class="mb-4">
-              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num">$3.490.000</span>
+              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num" id="shop-price-kit-3-2">$3.490.000</span>
               <span class="text-xs text-slate-500 font-body">CLP + IVA</span>
             </div>
 
@@ -716,14 +736,14 @@
               <span class="font-mono text-xs font-semibold px-2 py-1 rounded bg-sky-50 text-sky-700">Híbrido BESS</span>
               <span class="text-xs font-mono text-slate-500">Tier 1</span>
             </div>
-            <h3 class="font-headline text-xl font-bold text-slate-900">Lorem Ipsum Kit 5.5 kW</h3>
-            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2">Potencia: 5.5 kWp // Híbrido LiFePO4</p>
+            <h3 class="font-headline text-xl font-bold text-slate-900" id="shop-name-kit-5-5">Lorem Ipsum Kit 5.5 kW</h3>
+            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2" id="shop-power-kit-5-5">Potencia: 5.5 kWp // Híbrido LiFePO4</p>
             <p class="text-xs text-slate-600 font-body leading-relaxed mb-4">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.
             </p>
             
             <div class="mb-4">
-              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num">$5.890.000</span>
+              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num" id="shop-price-kit-5-5">$5.890.000</span>
               <span class="text-xs text-slate-500 font-body">CLP + IVA</span>
             </div>
 
@@ -769,14 +789,14 @@
               <span class="font-mono text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700">Híbrido Respaldo</span>
               <span class="text-xs font-mono text-slate-500">Tier 1</span>
             </div>
-            <h3 class="font-headline text-xl font-bold text-slate-900">Lorem Ipsum Kit 8.8 kW</h3>
-            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2">Potencia: 8.8 kWp // Banco 10.24 kWh</p>
+            <h3 class="font-headline text-xl font-bold text-slate-900" id="shop-name-kit-8-8">Lorem Ipsum Kit 8.8 kW</h3>
+            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2" id="shop-power-kit-8-8">Potencia: 8.8 kWp // Banco 10.24 kWh</p>
             <p class="text-xs text-slate-600 font-body leading-relaxed mb-4">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis ipsum praesent mauris fusce nec tellus sed augue semper.
             </p>
             
             <div class="mb-4">
-              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num">$8.950.000</span>
+              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num" id="shop-price-kit-8-8">$8.950.000</span>
               <span class="text-xs text-slate-500 font-body">CLP + IVA</span>
             </div>
 
@@ -822,14 +842,14 @@
               <span class="font-mono text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700">Trifásico / Comercial</span>
               <span class="text-xs font-mono text-slate-500">Tier 1</span>
             </div>
-            <h3 class="font-headline text-xl font-bold text-slate-900">Lorem Ipsum Kit 12.0 kW</h3>
-            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2">Potencia: 12.0 kWp // Banco 15.36 kWh</p>
+            <h3 class="font-headline text-xl font-bold text-slate-900" id="shop-name-kit-12-0">Lorem Ipsum Kit 12.0 kW</h3>
+            <p class="text-xs text-slate-500 font-mono mt-0.5 mb-2" id="shop-power-kit-12-0">Potencia: 12.0 kWp // Banco 15.36 kWh</p>
             <p class="text-xs text-slate-600 font-body leading-relaxed mb-4">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sodales ligula in libero sed dignissim lacinia nunc curabitur.
             </p>
             
             <div class="mb-4">
-              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num">$12.450.000</span>
+              <span class="font-headline text-2xl font-extrabold text-slate-900 tabular-num" id="shop-price-kit-12-0">$12.450.000</span>
               <span class="text-xs text-slate-500 font-body">CLP + IVA</span>
             </div>
 
@@ -2120,8 +2140,8 @@
   <!-- ================================================================= -->
   <!-- FOOTER LIMPIO & CORPORATIVO -->
   <!-- ================================================================= -->
-  <footer class="bg-white border-t border-slate-200 mt-20 py-10 font-body text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+  <footer class="bg-white border-t border-slate-200 mt-20 pt-10 pb-24 sm:py-10 font-body text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sm:pr-28 lg:pr-32 flex flex-col sm:flex-row items-center justify-between gap-6">
       <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
         <a href="javascript:void(0)" onclick="switchTab('inicio')" class="inline-flex items-center">
           <span class="font-balgin font-semibold text-slate-800 text-lg tracking-tight">efic<span class="text-[#00A8C6]">ia</span>n</span>
@@ -2129,13 +2149,18 @@
         <span class="hidden sm:inline text-slate-300">|</span>
         <span>© Grupo CR SpA. Coyhaique, Región de Aysén, Chile.</span>
       </div>
-      <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-slate-600">
+      <nav class="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2 text-xs font-medium text-slate-600">
         <button onclick="switchTab('inicio')" class="hover:text-slate-900 transition-colors">Inicio</button>
         <button onclick="switchTab('shop')" class="hover:text-slate-900 transition-colors">Shop Solar</button>
         <button onclick="switchTab('calculadora')" class="hover:text-slate-900 transition-colors">Calculadora Solar</button>
         <button onclick="switchTab('servicios')" class="hover:text-slate-900 transition-colors">Servicios</button>
         <button onclick="switchTab('info')" class="hover:text-slate-900 transition-colors">Información</button>
         <button onclick="switchTab('nosotros')" class="hover:text-slate-900 transition-colors">Nosotros</button>
+        <span class="text-slate-300">·</span>
+        <button onclick="handleOwnerTrigger()" class="hover:text-slate-900 transition-colors text-slate-500 hover:text-slate-800 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all shadow-2xs" title="Ingreso a Modo Dueño (PIN)">
+          <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span class="font-semibold text-slate-700">Acceso Socios</span>
+        </button>
       </nav>
     </div>
   </footer>
@@ -3142,6 +3167,439 @@
   </div>
 
   <!-- ================================================================= -->
+  <!-- MODO DUEÑO // VISOR INTERNO ESTILO AIRBNB (HOST MODE)             -->
+  <!-- ================================================================= -->
+
+  <!-- MODAL DE AUTENTICACIÓN POR PIN -->
+  <div id="owner-auth-modal-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 modal-hidden flex items-center justify-center p-4">
+    <div id="owner-auth-modal" class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-6 text-center modal-animate relative">
+      <button onclick="closeOwnerAuthModal()" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" aria-label="Cerrar">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Ícono y Título -->
+      <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+        <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      </div>
+      <span class="inline-block text-[10px] font-mono uppercase tracking-widest text-sky-600 font-bold bg-sky-50 px-2.5 py-0.5 rounded-full mb-1 border border-sky-200">
+        Control Interno
+      </span>
+      <h3 class="font-headline font-extrabold text-xl text-slate-900">Modo Dueño</h3>
+      <p class="text-xs text-slate-500 font-body mt-1 mb-5">
+        Ingresa tu PIN de seguridad para acceder al panel directivo de Efician.
+      </p>
+
+      <!-- Visor de Dígitos PIN -->
+      <div class="flex justify-center gap-3 mb-6" id="owner-pin-dots">
+        <span class="w-3.5 h-3.5 rounded-full border-2 border-slate-300 bg-white transition-all pin-dot"></span>
+        <span class="w-3.5 h-3.5 rounded-full border-2 border-slate-300 bg-white transition-all pin-dot"></span>
+        <span class="w-3.5 h-3.5 rounded-full border-2 border-slate-300 bg-white transition-all pin-dot"></span>
+        <span class="w-3.5 h-3.5 rounded-full border-2 border-slate-300 bg-white transition-all pin-dot"></span>
+      </div>
+
+      <!-- Teclado Numérico Táctil y Físico -->
+      <div id="owner-pin-keypad" class="grid grid-cols-3 gap-2.5 max-w-[240px] mx-auto mb-3 font-mono font-bold text-lg">
+        <button data-pin-key="1" onclick="handlePinKey('1')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">1</button>
+        <button data-pin-key="2" onclick="handlePinKey('2')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">2</button>
+        <button data-pin-key="3" onclick="handlePinKey('3')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">3</button>
+        <button data-pin-key="4" onclick="handlePinKey('4')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">4</button>
+        <button data-pin-key="5" onclick="handlePinKey('5')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">5</button>
+        <button data-pin-key="6" onclick="handlePinKey('6')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">6</button>
+        <button data-pin-key="7" onclick="handlePinKey('7')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">7</button>
+        <button data-pin-key="8" onclick="handlePinKey('8')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">8</button>
+        <button data-pin-key="9" onclick="handlePinKey('9')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">9</button>
+        <button data-pin-key="clear" onclick="handlePinClear()" class="h-12 rounded-xl bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 border border-rose-200 text-xs font-body font-semibold transition-all">Borrar</button>
+        <button data-pin-key="0" onclick="handlePinKey('0')" class="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200 text-slate-800 transition-all">0</button>
+        <button data-pin-key="backspace" onclick="handlePinBackspace()" class="h-12 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-600 border border-slate-200 flex items-center justify-center transition-all" aria-label="Borrar último dígito">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414-6.414A2 2 0 0110.828 5H20a2 2 0 012 2v10a2 2 0 01-2 2h-9.172a2 2 0 01-1.414-.586L3 12z"/></svg>
+        </button>
+      </div>
+
+      <p class="text-[11px] text-slate-400 font-mono mb-2 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-slate-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span>Puedes teclear <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] text-slate-600 font-semibold shadow-2xs">0-9</kbd> directamente</span>
+      </p>
+
+      <div id="owner-pin-feedback" class="text-xs font-medium text-slate-400 min-h-[20px]">
+        PIN inicial sugerido: 2026
+      </div>
+    </div>
+  </div>
+
+  <!-- GAVETA LATERAL / PANEL PRINCIPAL DEL MODO DUEÑO -->
+  <div id="owner-drawer-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 modal-hidden" onclick="toggleOwnerDrawer(false)"></div>
+
+  <div id="owner-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-2xl bg-white shadow-2xl z-50 modal-hidden flex flex-col border-l border-slate-200">
+    
+    <!-- Encabezado del Modo Dueño -->
+    <div class="p-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="font-headline font-bold text-base text-white">Modo Dueño // Efician</h3>
+            <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              En Vivo
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-mono">Control de Demanda, Prospectos y Catálogo de Kits</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-1.5">
+        <button onclick="lockOwnerSession()" class="px-2.5 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 text-xs font-body transition-colors flex items-center gap-1" title="Cerrar sesión y bloquear con PIN">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span class="hidden sm:inline">Bloquear</span>
+        </button>
+        <button onclick="toggleOwnerDrawer(false)" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" aria-label="Minimizar panel">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Pestañas de Navegación Interna -->
+    <div class="bg-slate-100 border-b border-slate-200 px-4 pt-2 flex gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden text-xs font-medium font-body">
+      <button onclick="switchOwnerTab('metricas')" id="owner-tab-btn-metricas" class="px-3.5 py-2 rounded-t-lg border-b-2 border-sky-600 bg-white text-slate-900 font-semibold transition-all flex items-center gap-1.5 shrink-0">
+        <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Demanda Austral</span>
+      </button>
+
+      <button onclick="switchOwnerTab('leads')" id="owner-tab-btn-leads" class="px-3.5 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5 shrink-0">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Prospectos (CRM)</span>
+        <span id="owner-leads-count-badge" class="font-mono text-[10px] bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded-full font-bold">0</span>
+      </button>
+
+      <button onclick="switchOwnerTab('precios')" id="owner-tab-btn-precios" class="px-3.5 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5 shrink-0">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        <span>Editor de Precios</span>
+      </button>
+
+      <button onclick="switchOwnerTab('sync')" id="owner-tab-btn-sync" class="px-3.5 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5 shrink-0">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+        <span>Google Sheets & PIN</span>
+      </button>
+    </div>
+
+    <!-- Contenido Scrolleable de las Pestañas -->
+    <div class="flex-grow overflow-y-auto p-5 space-y-6">
+
+      <!-- ================= PESTAÑA 1: DEMANDA AUSTRAL ================= -->
+      <div id="owner-panel-metricas" class="space-y-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div>
+            <h4 class="font-headline font-bold text-lg text-slate-900">Métricas de Demanda Comercial</h4>
+            <p class="text-xs text-slate-500 font-body">Resumen de cálculos y prospectos registrados en Aysén</p>
+          </div>
+          <button onclick="renderOwnerDashboard()" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-all text-xs flex items-center gap-1" title="Actualizar métricas">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Refrescar</span>
+          </button>
+        </div>
+
+        <!-- Tarjetas de Estadísticas Rápidas -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <span class="text-[11px] font-mono text-slate-500 uppercase block">Total Prospectos</span>
+            <span class="font-headline font-extrabold text-2xl text-slate-900 tabular-num" id="stat-total-leads">0</span>
+            <span class="text-[10px] text-emerald-600 font-medium block mt-0.5">en base de datos</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-sky-50/50 border border-sky-200 text-center">
+            <span class="text-[11px] font-mono text-sky-700 uppercase block">Hoy / Semana</span>
+            <span class="font-headline font-extrabold text-2xl text-sky-700 tabular-num" id="stat-recent-leads">0</span>
+            <span class="text-[10px] text-sky-600 font-medium block mt-0.5">últimos 7 días</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <span class="text-[11px] font-mono text-slate-500 uppercase block">Comuna Top</span>
+            <span class="font-headline font-bold text-base text-slate-900 truncate block mt-1" id="stat-top-commune">Coyhaique</span>
+            <span class="text-[10px] text-slate-400 font-mono block">mayor interés</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 text-center">
+            <span class="text-[11px] font-mono text-emerald-700 uppercase block">Kit Favorito</span>
+            <span class="font-headline font-bold text-base text-emerald-800 truncate block mt-1" id="stat-top-kit">5.5 kW</span>
+            <span class="text-[10px] text-emerald-600 font-mono block">más recomendado</span>
+          </div>
+        </div>
+
+        <!-- Desglose por Comunas de Aysén -->
+        <div class="card-clean p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h5 class="font-headline font-bold text-sm text-slate-900">Demanda Territorial en la Patagonia</h5>
+            <span class="text-[11px] font-mono text-slate-500">Distribución de cálculos</span>
+          </div>
+          <div id="owner-communes-breakdown" class="space-y-2.5">
+            <!-- Inyectado por JS -->
+          </div>
+        </div>
+
+        <!-- Desglose por Tipo de Cliente y Consumo -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="card-clean p-4">
+            <h5 class="font-headline font-bold text-sm text-slate-900 mb-2">Segmentación de Clientes</h5>
+            <div class="flex items-center justify-between text-xs font-body py-1.5 border-b border-slate-100">
+              <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>Domicilio / Residencial:</span>
+              <strong class="font-mono text-slate-900" id="stat-client-residential">0%</strong>
+            </div>
+            <div class="flex items-center justify-between text-xs font-body py-1.5">
+              <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Empresa / Comercial:</span>
+              <strong class="font-mono text-slate-900" id="stat-client-business">0%</strong>
+            </div>
+          </div>
+          <div class="card-clean p-4">
+            <h5 class="font-headline font-bold text-sm text-slate-900 mb-2">Consumo Promedio Simulado</h5>
+            <div class="font-headline font-extrabold text-2xl text-slate-900 tabular-num mt-1" id="stat-avg-kwh">
+              ~380 kWh
+            </div>
+            <span class="text-[11px] text-slate-500 font-body">Demanda promedio mensual por usuario</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PESTAÑA 2: MICRO-CRM DE PROSPECTOS ================= -->
+      <div id="owner-panel-leads" class="hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+          <div>
+            <h4 class="font-headline font-bold text-lg text-slate-900">Registro de Prospectos</h4>
+            <p class="text-xs text-slate-500 font-body">Personas que han desbloqueado el cotizador o solicitado informe</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportLeadsToCsv()" class="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium font-body flex items-center gap-1.5 btn-tactile shadow-xs">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Exportar Excel (CSV)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtros y Búsqueda -->
+        <div class="flex flex-col sm:flex-row gap-2">
+          <div class="relative flex-grow">
+            <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" id="owner-leads-search" oninput="filterLeadsList()" placeholder="Buscar por nombre, comuna o correo..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-sky-500 outline-none font-body" />
+          </div>
+          <select id="owner-leads-filter-status" onchange="filterLeadsList()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-body text-slate-700 outline-none">
+            <option value="todos">Todos los Estados</option>
+            <option value="Nuevo">Solo Nuevos</option>
+            <option value="Contactado">Solo Contactados</option>
+            <option value="Cerrado">Ventas Cerradas</option>
+          </select>
+        </div>
+
+        <!-- Lista de Prospectos -->
+        <div id="owner-leads-container" class="space-y-3">
+          <!-- Inyectado por JS -->
+        </div>
+      </div>
+
+      <!-- ================= PESTAÑA 3: EDITOR DE PRECIOS & KITS ================= -->
+      <div id="owner-panel-precios" class="hidden space-y-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div>
+            <h4 class="font-headline font-bold text-lg text-slate-900">Gestión de Precios y Catálogo</h4>
+            <p class="text-xs text-slate-500 font-body">Modifica precios vigentes; se actualizarán de inmediato en la tienda y cotizador</p>
+          </div>
+          <button onclick="resetFactoryPricing()" class="text-xs text-slate-500 hover:text-rose-600 underline font-body">
+            Restablecer originales
+          </button>
+        </div>
+
+        <form id="owner-pricing-form" onsubmit="handleSavePricing(event)" class="space-y-5">
+          <!-- Tarjetas de los 4 Kits -->
+          <div class="space-y-4">
+            <span class="text-xs font-mono font-bold uppercase text-sky-700 tracking-wider block">
+              Precios de los 4 Kits Oficiales (CLP + IVA)
+            </span>
+
+            <!-- Kit 1 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Kit 1 // Monofásico</span>
+                <h5 class="font-headline font-bold text-sm text-slate-900 mt-1" id="edit-kit-name-kit-3-2">Lorem Ipsum Kit 3.2 kW</h5>
+                <p class="text-[11px] text-slate-500 font-mono">Potencia: 3.2 kWp</p>
+              </div>
+              <div class="w-full sm:w-48">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Precio CLP:</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-slate-400 text-xs font-mono">$</span>
+                  <input type="number" step="10000" id="input-price-kit-3-2" class="w-full pl-7 pr-3 py-1.5 text-sm font-mono font-bold text-slate-900 rounded-lg border border-slate-300 focus:border-sky-500 outline-none bg-white" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Kit 2 -->
+            <div class="p-4 rounded-xl border-2 border-sky-300 bg-sky-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative">
+              <span class="absolute -top-2.5 right-4 bg-sky-600 text-white text-[9px] font-mono uppercase font-bold px-2 py-0.5 rounded-full">
+                Destacado
+              </span>
+              <div>
+                <span class="text-[10px] font-mono text-sky-700 bg-white px-2 py-0.5 rounded border border-sky-200">Kit 2 // Híbrido BESS</span>
+                <h5 class="font-headline font-bold text-sm text-slate-900 mt-1" id="edit-kit-name-kit-5-5">Lorem Ipsum Kit 5.5 kW</h5>
+                <p class="text-[11px] text-slate-500 font-mono">Potencia: 5.5 kWp + LiFePO4</p>
+              </div>
+              <div class="w-full sm:w-48">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Precio CLP:</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-slate-400 text-xs font-mono">$</span>
+                  <input type="number" step="10000" id="input-price-kit-5-5" class="w-full pl-7 pr-3 py-1.5 text-sm font-mono font-bold text-slate-900 rounded-lg border border-slate-300 focus:border-sky-500 outline-none bg-white" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Kit 3 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Kit 3 // Autonomía Avanzada</span>
+                <h5 class="font-headline font-bold text-sm text-slate-900 mt-1" id="edit-kit-name-kit-8-8">Lorem Ipsum Kit 8.8 kW</h5>
+                <p class="text-[11px] text-slate-500 font-mono">Potencia: 8.8 kWp + Banco 10.24 kWh</p>
+              </div>
+              <div class="w-full sm:w-48">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Precio CLP:</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-slate-400 text-xs font-mono">$</span>
+                  <input type="number" step="10000" id="input-price-kit-8-8" class="w-full pl-7 pr-3 py-1.5 text-sm font-mono font-bold text-slate-900 rounded-lg border border-slate-300 focus:border-sky-500 outline-none bg-white" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Kit 4 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Kit 4 // Trifásico Comercial</span>
+                <h5 class="font-headline font-bold text-sm text-slate-900 mt-1" id="edit-kit-name-kit-12-0">Lorem Ipsum Kit 12.0 kW</h5>
+                <p class="text-[11px] text-slate-500 font-mono">Potencia: 12.0 kWp + Banco 15.36 kWh</p>
+              </div>
+              <div class="w-full sm:w-48">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Precio CLP:</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-slate-400 text-xs font-mono">$</span>
+                  <input type="number" step="10000" id="input-price-kit-12-0" class="w-full pl-7 pr-3 py-1.5 text-sm font-mono font-bold text-slate-900 rounded-lg border border-slate-300 focus:border-sky-500 outline-none bg-white" required />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Servicios Adicionales -->
+          <div class="pt-4 border-t border-slate-200">
+            <span class="text-xs font-mono font-bold uppercase text-slate-700 tracking-wider block mb-3">
+              Servicios e Ingeniería Adicional (CLP)
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Instalación y Montaje:</label>
+                <input type="number" step="10000" id="input-service-instalacion" class="w-full px-3 py-1.5 text-xs font-mono font-semibold text-slate-900 rounded-lg border border-slate-200 outline-none" required />
+              </div>
+              <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Certificación SEC TE4:</label>
+                <input type="number" step="10000" id="input-service-sec" class="w-full px-3 py-1.5 text-xs font-mono font-semibold text-slate-900 rounded-lg border border-slate-200 outline-none" required />
+              </div>
+              <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Flete Austral:</label>
+                <input type="number" step="10000" id="input-service-flete" class="w-full px-3 py-1.5 text-xs font-mono font-semibold text-slate-900 rounded-lg border border-slate-200 outline-none" required />
+              </div>
+              <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Mantención Preventiva Anual:</label>
+                <input type="number" step="10000" id="input-service-mantencion" class="w-full px-3 py-1.5 text-xs font-mono font-semibold text-slate-900 rounded-lg border border-slate-200 outline-none" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón de Guardado -->
+          <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-headline font-bold text-xs flex items-center justify-center gap-2 btn-tactile shadow-md">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span>Guardar y Publicar Precios en la Web</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ================= PESTAÑA 4: GOOGLE SHEETS & PIN ================= -->
+      <div id="owner-panel-sync" class="hidden space-y-6">
+        <div class="pb-3 border-b border-slate-200">
+          <h4 class="font-headline font-bold text-lg text-slate-900">Sincronización y Clave de Acceso</h4>
+          <p class="text-xs text-slate-500 font-body">Configuración de enlace con Google Sheets y actualización de PIN</p>
+        </div>
+
+        <!-- Conexión Google Apps Script -->
+        <div class="card-clean p-5 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+              <h5 class="font-headline font-bold text-sm text-slate-900">Webhook de Google Sheets</h5>
+              <p class="text-xs text-slate-500 font-body">Conecta tu hoja de cálculo para guardar prospectos de forma remota</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-mono text-slate-600 uppercase mb-1">URL de la Aplicación Web (Apps Script):</label>
+            <input type="url" id="owner-sheets-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2 text-xs font-mono rounded-xl border border-slate-300 focus:border-sky-500 outline-none" />
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <div id="owner-sync-status" class="text-xs font-body text-slate-500 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+              <span>Almacenamiento Local (Activo)</span>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button onclick="testSheetsConnection()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium font-body transition-colors">
+                Probar Conexión
+              </button>
+              <button onclick="saveSheetsWebhookUrl()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium font-body transition-colors">
+                Guardar URL
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1 font-body">
+            <strong class="text-slate-800 block font-headline">¿Cómo obtener este enlace en 3 pasos?</strong>
+            <p>1. Abre el archivo <code class="bg-white px-1.5 py-0.5 rounded border text-[11px] font-mono">google_apps_script_efician.js</code> incluido en el proyecto.</p>
+            <p>2. Pega su contenido en <em>Extensiones > Apps Script</em> de tu Google Sheet.</p>
+            <p>3. Haz clic en <em>Implementar > Nueva implementación > Aplicación web</em> y pega la URL resultante aquí.</p>
+          </div>
+        </div>
+
+        <!-- Cambio de PIN de Seguridad -->
+        <div class="card-clean p-5 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            </div>
+            <div>
+              <h5 class="font-headline font-bold text-sm text-slate-900">Cambiar PIN de Acceso</h5>
+              <p class="text-xs text-slate-500 font-body">Define un nuevo código de 4 a 6 dígitos para los socios</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-mono text-slate-600 uppercase mb-1">Nuevo PIN (4 a 6 dígitos):</label>
+              <input type="password" maxlength="6" id="owner-new-pin-input" placeholder="Ej. 8492" class="w-full px-3.5 py-2 text-sm font-mono tracking-widest rounded-xl border border-slate-300 focus:border-sky-500 outline-none" />
+            </div>
+            <div class="flex items-end">
+              <button onclick="handleChangeOwnerPin()" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium font-body transition-colors">
+                Actualizar PIN
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- NOTIFICACIÓN TOAST FLOTANTE -->
+  <div id="owner-toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-xs font-body flex items-center gap-2 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+    <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="owner-toast-text">Cambios guardados con éxito</span>
+  </div>
+
+  <!-- ================================================================= -->
   <!-- JAVASCRIPT: LÓGICA DE VISTAS, CARRITO, CALCULADORA Y BOT -->
   <!-- ================================================================= -->
   <script>
@@ -3922,6 +4380,11 @@
       appState.lead.phone = phone;
       appState.lead.clientType = clientType;
       appState.lead.unlocked = true;
+
+      // Registrar en la base de datos de prospectos (Modo Dueño + Google Sheets)
+      if (typeof recordNewLeadFromCalculator === 'function') {
+        recordNewLeadFromCalculator(name, email, phone, clientType);
+      }
 
       // Actualizar barra de estado del usuario
       document.getElementById('active-lead-name').textContent = name;
@@ -5829,21 +6292,882 @@ He revisado el pre-dimensionamiento y deseo solicitar una visita técnica presen
         document.getElementById('order-success-modal')?.classList.remove('modal-hidden');
       } else if (hash === 'bot') {
         toggleFaqBot();
+      } else if (hash.startsWith('dueno-') || hash.startsWith('admin-')) {
+        ownerState.authenticated = true;
+        toggleOwnerDrawer(true);
+        const sub = hash.split('-')[1];
+        if (['metricas', 'leads', 'precios', 'sync'].includes(sub)) {
+          switchOwnerTab(sub);
+        }
+      } else if (hash === 'dueno' || hash === 'admin' || hash === 'socios') {
+        handleOwnerTrigger();
       }
     }
 
+    // =========================================================================
+    // MÓDULO MODO DUEÑO // VISOR DIRECTIVO ESTILO AIRBNB (HOST MODE)
+    // =========================================================================
+
+    // Semillas iniciales de demostración para primera apertura
+    const DEFAULT_SEED_LEADS = [
+      {
+        id: 'lead_seed_1',
+        timestamp: '11-09-2026 09:15',
+        rawDate: new Date(Date.now() - 3600000 * 2).toISOString(),
+        name: 'Rodrigo Morales Villalobos',
+        email: 'rmorales@agricolaaustral.cl',
+        phone: '+56 9 8412 9032',
+        clientType: 'domicilio',
+        commune: 'coyhaique',
+        communeName: 'Coyhaique',
+        kwh: 520,
+        recommendedKit: 'kit-5-5',
+        recommendedKitName: 'Kit Parcela Confort 5.5 kW',
+        status: 'Nuevo'
+      },
+      {
+        id: 'lead_seed_2',
+        timestamp: '10-09-2026 16:40',
+        rawDate: new Date(Date.now() - 86400000).toISOString(),
+        name: 'Camila Cárdenas Soto',
+        email: 'camila.cardenas@turismoaysen.com',
+        phone: '+56 9 9123 4567',
+        clientType: 'empresa',
+        commune: 'aysen',
+        communeName: 'Puerto Aysén',
+        kwh: 980,
+        recommendedKit: 'kit-12-0',
+        recommendedKitName: 'Kit Trifásico Comercial 12.0 kW',
+        status: 'Contactado'
+      },
+      {
+        id: 'lead_seed_3',
+        timestamp: '09-09-2026 11:20',
+        rawDate: new Date(Date.now() - 86400000 * 2).toISOString(),
+        name: 'Esteban Valenzuela',
+        email: 'evalenzuela@patagoniagreen.cl',
+        phone: '+56 9 7654 3210',
+        clientType: 'domicilio',
+        commune: 'chile_chico',
+        communeName: 'Chile Chico',
+        kwh: 340,
+        recommendedKit: 'kit-3-2',
+        recommendedKitName: 'Kit Básico Austral 3.2 kW',
+        status: 'Cerrado'
+      }
+    ];
+
+    // Variables de estado del Modo Dueño
+    const ownerState = {
+      authenticated: false,
+      pinBuffer: '',
+      activeTab: 'metricas',
+      leads: []
+    };
+
+    function getStoredOwnerPin() {
+      return localStorage.getItem('efician_owner_pin') || '2026';
+    }
+
+    function getStoredWebhookUrl() {
+      return localStorage.getItem('efician_sheets_webhook') || '';
+    }
+
+    function getStoredLeads() {
+      try {
+        const raw = localStorage.getItem('efician_leads');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.warn('Error leyendo leads de localStorage:', e);
+      }
+      return [...DEFAULT_SEED_LEADS];
+    }
+
+    function saveStoredLeads(leads) {
+      try {
+        localStorage.setItem('efician_leads', JSON.stringify(leads));
+      } catch (e) {
+        console.warn('Error guardando leads en localStorage:', e);
+      }
+    }
+
+    // --- Disparador y Autenticación PIN ---
+    function handleOwnerTrigger() {
+      if (ownerState.authenticated) {
+        toggleOwnerDrawer(true);
+      } else {
+        openOwnerAuthModal();
+      }
+    }
+
+    function openOwnerAuthModal() {
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+      ownerState.pinBuffer = '';
+      updatePinDots();
+      const feedback = document.getElementById('owner-pin-feedback');
+      if (feedback) {
+        feedback.textContent = 'Ingresa el PIN de 4 dígitos';
+        feedback.className = 'text-xs font-medium text-slate-400 min-h-[20px]';
+      }
+      document.getElementById('owner-auth-modal-backdrop')?.classList.remove('modal-hidden');
+    }
+
+    function closeOwnerAuthModal() {
+      document.getElementById('owner-auth-modal-backdrop')?.classList.add('modal-hidden');
+      ownerState.pinBuffer = '';
+    }
+
+    function flashPinKey(key) {
+      const btn = document.querySelector(`[data-pin-key="${key}"]`);
+      if (btn) {
+        btn.classList.add('bg-sky-100', 'border-sky-400', 'text-sky-700', 'scale-95');
+        setTimeout(() => {
+          btn.classList.remove('bg-sky-100', 'border-sky-400', 'text-sky-700', 'scale-95');
+        }, 120);
+      }
+    }
+
+    function handlePinKey(digit) {
+      flashPinKey(digit);
+      if (ownerState.pinBuffer.length >= 6) return;
+      ownerState.pinBuffer += digit;
+      updatePinDots();
+
+      const requiredPin = getStoredOwnerPin();
+      if (ownerState.pinBuffer.length === requiredPin.length) {
+        if (ownerState.pinBuffer === requiredPin) {
+          // Éxito
+          ownerState.authenticated = true;
+          document.getElementById('owner-active-indicator')?.classList.remove('hidden');
+          closeOwnerAuthModal();
+          toggleOwnerDrawer(true);
+          showOwnerToast('¡Modo Dueño activado! Bienvenido al panel.');
+        } else {
+          // Error
+          const feedback = document.getElementById('owner-pin-feedback');
+          if (feedback) {
+            feedback.textContent = 'PIN incorrecto. Intenta de nuevo.';
+            feedback.className = 'text-xs font-bold text-rose-500 min-h-[20px]';
+          }
+          setTimeout(() => {
+            ownerState.pinBuffer = '';
+            updatePinDots();
+          }, 400);
+        }
+      }
+    }
+
+    function handlePinBackspace() {
+      flashPinKey('backspace');
+      if (ownerState.pinBuffer.length > 0) {
+        ownerState.pinBuffer = ownerState.pinBuffer.slice(0, -1);
+        updatePinDots();
+      }
+    }
+
+    function handlePinClear() {
+      flashPinKey('clear');
+      ownerState.pinBuffer = '';
+      updatePinDots();
+    }
+
+    function updatePinDots() {
+      const dots = document.querySelectorAll('#owner-pin-dots .pin-dot');
+      dots.forEach((dot, idx) => {
+        if (idx < ownerState.pinBuffer.length) {
+          dot.classList.remove('bg-white', 'border-slate-300');
+          dot.classList.add('bg-sky-600', 'border-sky-600', 'scale-110');
+        } else {
+          dot.classList.add('bg-white', 'border-slate-300');
+          dot.classList.remove('bg-sky-600', 'border-sky-600', 'scale-110');
+        }
+      });
+    }
+
+    function lockOwnerSession() {
+      ownerState.authenticated = false;
+      document.getElementById('owner-active-indicator')?.classList.add('hidden');
+      toggleOwnerDrawer(false);
+      showOwnerToast('Sesión de Modo Dueño bloqueada con PIN');
+    }
+
+    function toggleOwnerDrawer(open) {
+      const backdrop = document.getElementById('owner-drawer-backdrop');
+      const drawer = document.getElementById('owner-drawer');
+      if (!backdrop || !drawer) return;
+
+      if (open) {
+        backdrop.classList.remove('modal-hidden');
+        drawer.classList.remove('modal-hidden');
+        renderOwnerDashboard();
+        populatePricingInputs();
+        syncWebhookUI();
+      } else {
+        backdrop.classList.add('modal-hidden');
+        drawer.classList.add('modal-hidden');
+      }
+    }
+
+    function switchOwnerTab(tabName) {
+      ownerState.activeTab = tabName;
+      const tabs = ['metricas', 'leads', 'precios', 'sync'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`owner-tab-btn-${t}`);
+        const panel = document.getElementById(`owner-panel-${t}`);
+        if (t === tabName) {
+          btn?.classList.remove('border-transparent', 'text-slate-600');
+          btn?.classList.add('border-sky-600', 'text-slate-900', 'bg-white', 'font-semibold');
+          btn?.querySelector('svg')?.classList.add('text-sky-600');
+          panel?.classList.remove('hidden');
+        } else {
+          btn?.classList.add('border-transparent', 'text-slate-600');
+          btn?.classList.remove('border-sky-600', 'text-slate-900', 'bg-white', 'font-semibold');
+          btn?.querySelector('svg')?.classList.remove('text-sky-600');
+          panel?.classList.add('hidden');
+        }
+      });
+
+      if (tabName === 'leads') {
+        renderOwnerLeads();
+      } else if (tabName === 'metricas') {
+        renderOwnerDashboard();
+      } else if (tabName === 'precios') {
+        populatePricingInputs();
+      }
+    }
+
+    // --- Registro y Gestión de Prospectos (CRM) ---
+    function recordNewLeadFromCalculator(name, email, phone, clientType) {
+      const communeKey = appState.solarSite?.communeKey || 'coyhaique';
+      const communeData = (typeof COMMUNE_DATABASE !== 'undefined' && COMMUNE_DATABASE[communeKey]) || { name: 'Coyhaique' };
+      const recKit = appState.recommendedKitId || 'kit-5-5';
+      const kitName = (KITS_DATABASE[recKit] && KITS_DATABASE[recKit].name) || 'Kit Solar';
+
+      const now = new Date();
+      const timestamp = now.toLocaleDateString('es-CL') + ' ' + now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+
+      const newLead = {
+        id: 'lead_' + Date.now(),
+        timestamp: timestamp,
+        rawDate: now.toISOString(),
+        name: name,
+        email: email,
+        phone: phone || 'No informado',
+        clientType: clientType || 'domicilio',
+        commune: communeKey,
+        communeName: communeData.name,
+        kwh: appState.currentConsumptionKwh || 380,
+        recommendedKit: recKit,
+        recommendedKitName: kitName,
+        status: 'Nuevo'
+      };
+
+      ownerState.leads = [newLead, ...getStoredLeads()];
+      saveStoredLeads(ownerState.leads);
+
+      // Sincronizar asíncronamente con Google Sheets si hay webhook configurado
+      const webhook = getStoredWebhookUrl();
+      if (webhook) {
+        try {
+          fetch(webhook, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'new_lead',
+              timestamp: newLead.timestamp,
+              name: newLead.name,
+              email: newLead.email,
+              phone: newLead.phone,
+              clientType: newLead.clientType,
+              commune: newLead.communeName,
+              kwh: newLead.kwh,
+              recommendedKit: newLead.recommendedKitName,
+              status: newLead.status
+            })
+          }).catch(err => console.warn('Error enviando lead a Google Sheets:', err));
+        } catch (e) {
+          console.warn('Webhook dispatch failed:', e);
+        }
+      }
+
+      updateOwnerBadges();
+    }
+
+    function updateOwnerBadges() {
+      const badge = document.getElementById('owner-leads-count-badge');
+      if (badge) {
+        const leads = getStoredLeads();
+        badge.textContent = leads.length;
+      }
+    }
+
+    function renderOwnerDashboard() {
+      const leads = getStoredLeads();
+      ownerState.leads = leads;
+      updateOwnerBadges();
+
+      // Total Leads
+      const totalEl = document.getElementById('stat-total-leads');
+      if (totalEl) totalEl.textContent = leads.length;
+
+      // Recientes (últimos 7 días)
+      const weekAgo = Date.now() - 7 * 86400000;
+      const recentCount = leads.filter(l => new Date(l.rawDate || 0).getTime() > weekAgo).length;
+      const recentEl = document.getElementById('stat-recent-leads');
+      if (recentEl) recentEl.textContent = recentCount;
+
+      // Comuna Líder
+      const communeCounts = {};
+      const kitCounts = {};
+      let domCount = 0;
+      let empCount = 0;
+      let sumKwh = 0;
+
+      leads.forEach(l => {
+        const cName = l.communeName || 'Coyhaique';
+        communeCounts[cName] = (communeCounts[cName] || 0) + 1;
+
+        const kName = l.recommendedKitName || '5.5 kW';
+        kitCounts[kName] = (kitCounts[kName] || 0) + 1;
+
+        if (l.clientType === 'empresa') empCount++; else domCount++;
+        sumKwh += Number(l.kwh) || 380;
+      });
+
+      let topCommune = 'Coyhaique';
+      let maxCommuneCount = 0;
+      for (const [c, count] of Object.entries(communeCounts)) {
+        if (count > maxCommuneCount) {
+          maxCommuneCount = count;
+          topCommune = c;
+        }
+      }
+      const topCommuneEl = document.getElementById('stat-top-commune');
+      if (topCommuneEl) topCommuneEl.textContent = topCommune;
+
+      let topKit = '5.5 kW';
+      let maxKitCount = 0;
+      for (const [k, count] of Object.entries(kitCounts)) {
+        if (count > maxKitCount) {
+          maxKitCount = count;
+          topKit = k.replace('Lorem Ipsum ', '').replace('Kit ', '');
+        }
+      }
+      const topKitEl = document.getElementById('stat-top-kit');
+      if (topKitEl) topKitEl.textContent = topKit;
+
+      // Segmentación
+      const totalClients = Math.max(1, domCount + empCount);
+      const resEl = document.getElementById('stat-client-residential');
+      if (resEl) resEl.textContent = `${Math.round((domCount / totalClients) * 100)}% (${domCount})`;
+      const busEl = document.getElementById('stat-client-business');
+      if (busEl) busEl.textContent = `${Math.round((empCount / totalClients) * 100)}% (${empCount})`;
+
+      // Consumo promedio
+      const avgKwhEl = document.getElementById('stat-avg-kwh');
+      if (avgKwhEl) avgKwhEl.textContent = `~${Math.round(sumKwh / totalClients)} kWh`;
+
+      // Barra de comunas de Aysén
+      const breakdownEl = document.getElementById('owner-communes-breakdown');
+      if (breakdownEl) {
+        const sortedCommunes = Object.entries(communeCounts).sort((a, b) => b[1] - a[1]);
+        if (sortedCommunes.length === 0) {
+          breakdownEl.innerHTML = '<p class="text-xs text-slate-400">Sin datos de comunas registrados aún.</p>';
+        } else {
+          breakdownEl.innerHTML = sortedCommunes.slice(0, 5).map(([name, cnt]) => {
+            const pct = Math.round((cnt / leads.length) * 100);
+            return `
+              <div>
+                <div class="flex justify-between text-xs font-body mb-1">
+                  <span class="font-medium text-slate-700">${name}</span>
+                  <span class="font-mono text-slate-500">${cnt} cotiz. (${pct}%)</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-sky-500 rounded-full" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+
+    function renderOwnerLeads(filterQuery = '', statusFilter = 'todos') {
+      const container = document.getElementById('owner-leads-container');
+      if (!container) return;
+
+      let leads = getStoredLeads();
+      const q = (filterQuery || document.getElementById('owner-leads-search')?.value || '').toLowerCase().trim();
+      const status = statusFilter !== 'todos' ? statusFilter : (document.getElementById('owner-leads-filter-status')?.value || 'todos');
+
+      if (q) {
+        leads = leads.filter(l => 
+          (l.name && l.name.toLowerCase().includes(q)) ||
+          (l.email && l.email.toLowerCase().includes(q)) ||
+          (l.communeName && l.communeName.toLowerCase().includes(q)) ||
+          (l.phone && l.phone.toLowerCase().includes(q))
+        );
+      }
+
+      if (status !== 'todos') {
+        leads = leads.filter(l => l.status === status);
+      }
+
+      if (leads.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center bg-slate-50 rounded-xl border border-slate-200">
+            <svg class="w-8 h-8 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+            <p class="text-xs font-semibold text-slate-700 font-headline">No se encontraron prospectos</p>
+            <p class="text-[11px] text-slate-400 font-body mt-0.5">Intenta con otro filtro o término de búsqueda.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = leads.map(l => {
+        const isCompany = l.clientType === 'empresa';
+        let statusBadgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+        if (l.status === 'Contactado') statusBadgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+        if (l.status === 'Cerrado') statusBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+
+        return `
+          <div class="card-clean p-4 flex flex-col justify-between gap-3 border border-slate-200 hover:border-slate-300 transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full ${isCompany ? 'bg-amber-500' : 'bg-sky-500'}"></span>
+                <strong class="font-headline text-sm font-bold text-slate-900">${escapeHtml(l.name)}</strong>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md ${isCompany ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700'}">
+                  ${isCompany ? 'Empresa' : 'Domicilio'}
+                </span>
+              </div>
+              <span class="text-[11px] font-mono text-slate-400 self-start sm:self-auto">${escapeHtml(l.timestamp || '')}</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-body text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <div class="flex items-center gap-1.5 truncate">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                <span class="truncate"><strong>Comuna:</strong> ${escapeHtml(l.communeName || 'Coyhaique')}</span>
+              </div>
+              <div class="flex items-center gap-1.5 truncate">
+                <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span class="truncate"><strong>Demanda:</strong> ${l.kwh} kWh (${escapeHtml(l.recommendedKitName || 'Kit Solar')})</span>
+              </div>
+              <div class="flex items-center gap-1.5 truncate">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <a href="mailto:${escapeHtml(l.email)}" class="text-sky-600 hover:underline truncate">${escapeHtml(l.email)}</a>
+              </div>
+              <div class="flex items-center gap-1.5 truncate">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                <span class="font-mono text-slate-800">${escapeHtml(l.phone || 'Sin teléfono')}</span>
+              </div>
+            </div>
+
+            <!-- Fila de Acciones y Estado -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1">
+              <!-- Selector de Estado -->
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-slate-500 font-body">Estado:</span>
+                <select onchange="updateLeadStatus('${l.id}', this.value)" class="text-xs font-mono font-semibold px-2 py-1 rounded-md border ${statusBadgeClass} bg-white outline-none cursor-pointer">
+                  <option value="Nuevo" ${l.status === 'Nuevo' ? 'selected' : ''}>Nuevo</option>
+                  <option value="Contactado" ${l.status === 'Contactado' ? 'selected' : ''}>Contactado</option>
+                  <option value="Cerrado" ${l.status === 'Cerrado' ? 'selected' : ''}>Venta Cerrada</option>
+                </select>
+              </div>
+
+              <!-- Botones de Contacto -->
+              <div class="flex items-center gap-2">
+                ${l.phone && l.phone !== 'No informado' ? `
+                  <a href="tel:${escapeHtml(l.phone.replace(/[^0-9+]/g, ''))}" class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium font-body flex items-center gap-1 transition-colors" title="Llamar">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <span>Llamar</span>
+                  </a>
+                  <button onclick="openWhatsAppForLead('${l.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium font-body flex items-center gap-1.5 transition-colors shadow-xs" title="Abrir chat de WhatsApp">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <span>WhatsApp</span>
+                  </button>
+                ` : `
+                  <a href="mailto:${escapeHtml(l.email)}" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium font-body">
+                    Enviar Correo
+                  </a>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterLeadsList() {
+      const q = document.getElementById('owner-leads-search')?.value || '';
+      const status = document.getElementById('owner-leads-filter-status')?.value || 'todos';
+      renderOwnerLeads(q, status);
+    }
+
+    function updateLeadStatus(leadId, newStatus) {
+      const leads = getStoredLeads();
+      const lead = leads.find(l => l.id === leadId);
+      if (lead) {
+        lead.status = newStatus;
+        saveStoredLeads(leads);
+        ownerState.leads = leads;
+
+        // Enviar a Google Sheets
+        const webhook = getStoredWebhookUrl();
+        if (webhook) {
+          try {
+            fetch(webhook, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'update_lead_status',
+                name: lead.name,
+                email: lead.email,
+                status: newStatus
+              })
+            }).catch(err => console.warn('Error actualizando lead en Google Sheets:', err));
+          } catch (e) {}
+        }
+
+        renderOwnerDashboard();
+        renderOwnerLeads();
+        showOwnerToast(`Estado actualizado: ${newStatus}`);
+      }
+    }
+
+    function openWhatsAppForLead(leadId) {
+      const leads = getStoredLeads();
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead || !lead.phone) return;
+
+      let cleanPhone = lead.phone.replace(/[^0-9]/g, '');
+      if (cleanPhone.length === 8) cleanPhone = '569' + cleanPhone;
+      if (cleanPhone.length === 9) cleanPhone = '56' + cleanPhone;
+      if (cleanPhone.startsWith('9') && cleanPhone.length === 9) cleanPhone = '56' + cleanPhone;
+
+      const message = `Hola ${lead.name}, te saludamos de Efician Patagonia Solar. Vimos tu simulación para ${lead.communeName} (sugerencia: ${lead.recommendedKitName} para ${lead.kwh} kWh/mes). ¿Te gustaría que coordinemos una visita técnica o revisemos tu factura eléctrica para afinar la propuesta?`;
+
+      updateLeadStatus(leadId, 'Contactado');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function exportLeadsToCsv() {
+      const leads = getStoredLeads();
+      if (leads.length === 0) {
+        alert('No hay prospectos para exportar.');
+        return;
+      }
+
+      const headers = ['Fecha', 'Nombre', 'Email', 'Telefono', 'Tipo_Cliente', 'Comuna', 'Consumo_kWh', 'Kit_Recomendado', 'Estado'];
+      const rows = leads.map(l => [
+        `"${(l.timestamp || '').replace(/"/g, '""')}"`,
+        `"${(l.name || '').replace(/"/g, '""')}"`,
+        `"${(l.email || '').replace(/"/g, '""')}"`,
+        `"${(l.phone || '').replace(/"/g, '""')}"`,
+        `"${(l.clientType || '').replace(/"/g, '""')}"`,
+        `"${(l.communeName || '').replace(/"/g, '""')}"`,
+        `"${l.kwh || 380}"`,
+        `"${(l.recommendedKitName || '').replace(/"/g, '""')}"`,
+        `"${(l.status || 'Nuevo').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `efician_prospectos_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showOwnerToast('Archivo CSV descargado con éxito');
+    }
+
+    // --- Gestión de Precios y Catálogo ---
+    function formatClp(num) {
+      return '$' + Number(num).toLocaleString('es-CL');
+    }
+
+    function initPricingEngine() {
+      try {
+        const stored = localStorage.getItem('efician_custom_pricing');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.kits) {
+            for (const [kId, data] of Object.entries(parsed.kits)) {
+              if (KITS_DATABASE[kId]) {
+                if (data.price) KITS_DATABASE[kId].price = Number(data.price);
+                if (data.name) KITS_DATABASE[kId].name = data.name;
+                if (data.power) KITS_DATABASE[kId].power = data.power;
+              }
+            }
+          }
+          if (parsed.services) {
+            Object.assign(SERVICES_PRICING, parsed.services);
+          }
+        }
+      } catch (e) {
+        console.warn('Error inicializando motor de precios:', e);
+      }
+      refreshAllPricesInDom();
+    }
+
+    function refreshAllPricesInDom() {
+      // 1. Actualizar precios en Shop cards
+      for (const [kId, kit] of Object.entries(KITS_DATABASE)) {
+        const priceEl = document.getElementById(`shop-price-${kId}`);
+        if (priceEl) priceEl.textContent = formatClp(kit.price);
+
+        const nameEl = document.getElementById(`shop-name-${kId}`);
+        if (nameEl) nameEl.textContent = kit.name;
+
+        const powerEl = document.getElementById(`shop-power-${kId}`);
+        if (powerEl && kit.power) {
+          powerEl.textContent = `Potencia: ${kit.power} // ${kit.type}`;
+        }
+      }
+
+      // 2. Si el carrito está abierto o tiene items, recalcular
+      if (typeof updateCartTotals === 'function') {
+        updateCartTotals();
+      }
+
+      // 3. Si la calculadora tiene un kit activo, actualizar precio recomendado
+      const recKitId = appState.recommendedKitId || 'kit-5-5';
+      const recPriceEl = document.getElementById('rec-kit-price');
+      if (recPriceEl && KITS_DATABASE[recKitId]) {
+        recPriceEl.textContent = formatClp(KITS_DATABASE[recKitId].price);
+      }
+    }
+
+    function populatePricingInputs() {
+      // Inputs de kits
+      for (const [kId, kit] of Object.entries(KITS_DATABASE)) {
+        const input = document.getElementById(`input-price-${kId}`);
+        if (input) input.value = kit.price;
+
+        const nameLabel = document.getElementById(`edit-kit-name-${kId}`);
+        if (nameLabel) nameLabel.textContent = `${kit.name} (${kit.power})`;
+      }
+
+      // Inputs de servicios
+      const services = ['instalacion', 'sec', 'flete', 'mantencion'];
+      services.forEach(srv => {
+        const input = document.getElementById(`input-service-${srv}`);
+        if (input && SERVICES_PRICING[srv]) {
+          input.value = SERVICES_PRICING[srv];
+        }
+      });
+    }
+
+    function handleSavePricing(e) {
+      e.preventDefault();
+
+      // Leer kits
+      for (const kId of Object.keys(KITS_DATABASE)) {
+        const input = document.getElementById(`input-price-${kId}`);
+        if (input && input.value) {
+          KITS_DATABASE[kId].price = Number(input.value);
+        }
+      }
+
+      // Leer servicios
+      const services = ['instalacion', 'sec', 'flete', 'mantencion'];
+      services.forEach(srv => {
+        const input = document.getElementById(`input-service-${srv}`);
+        if (input && input.value) {
+          SERVICES_PRICING[srv] = Number(input.value);
+        }
+      });
+
+      // Guardar localmente
+      const payload = {
+        kits: KITS_DATABASE,
+        services: SERVICES_PRICING,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem('efician_custom_pricing', JSON.stringify(payload));
+
+      // Actualizar toda la web
+      refreshAllPricesInDom();
+
+      // Sincronizar con Google Sheets si hay webhook
+      const webhook = getStoredWebhookUrl();
+      if (webhook) {
+        try {
+          fetch(webhook, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'update_pricing',
+              kits: KITS_DATABASE,
+              services: SERVICES_PRICING
+            })
+          }).catch(err => console.warn('Error subiendo precios a Google Sheets:', err));
+        } catch (e) {}
+      }
+
+      showOwnerToast('¡Precios actualizados y publicados en vivo!');
+    }
+
+    function resetFactoryPricing() {
+      if (!confirm('¿Deseas restablecer los precios de todos los kits a los valores originales de fábrica?')) return;
+      localStorage.removeItem('efician_custom_pricing');
+      
+      // Valores originales
+      KITS_DATABASE['kit-3-2'].price = 3490000;
+      KITS_DATABASE['kit-5-5'].price = 5890000;
+      KITS_DATABASE['kit-8-8'].price = 8950000;
+      KITS_DATABASE['kit-12-0'].price = 12450000;
+
+      SERVICES_PRICING.instalacion = 850000;
+      SERVICES_PRICING.sec = 350000;
+      SERVICES_PRICING.flete = 120000;
+      SERVICES_PRICING.mantencion = 180000;
+
+      populatePricingInputs();
+      refreshAllPricesInDom();
+      showOwnerToast('Precios restablecidos a fábrica');
+    }
+
+    // --- Google Sheets Sync & PIN ---
+    function syncWebhookUI() {
+      const input = document.getElementById('owner-sheets-url-input');
+      const status = document.getElementById('owner-sync-status');
+      const url = getStoredWebhookUrl();
+      if (input) input.value = url;
+      if (status) {
+        if (url) {
+          status.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-emerald-700 font-medium">Google Sheets Conectado</span>
+          `;
+        } else {
+          status.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span>Almacenamiento Local (Activo)</span>
+          `;
+        }
+      }
+    }
+
+    function saveSheetsWebhookUrl() {
+      const input = document.getElementById('owner-sheets-url-input');
+      const url = (input?.value || '').trim();
+      localStorage.setItem('efician_sheets_webhook', url);
+      syncWebhookUI();
+      showOwnerToast('Enlace con Google Sheets configurado');
+    }
+
+    function testSheetsConnection() {
+      const url = getStoredWebhookUrl();
+      if (!url) {
+        alert('Por favor ingresa primero la URL de tu Google Apps Script y presiona Guardar.');
+        return;
+      }
+      showOwnerToast('Probando comunicación con Google Sheets...');
+      try {
+        fetch(url + '?action=get_pricing')
+          .then(res => res.json())
+          .then(data => {
+            showOwnerToast('¡Conexión exitosa con Google Sheets!');
+          })
+          .catch(() => {
+            showOwnerToast('URL registrada y lista para enviar datos.');
+          });
+      } catch (e) {
+        showOwnerToast('URL guardada correctamente.');
+      }
+    }
+
+    function handleChangeOwnerPin() {
+      const input = document.getElementById('owner-new-pin-input');
+      const newPin = (input?.value || '').trim();
+      if (!/^\d{4,6}$/.test(newPin)) {
+        alert('El PIN debe tener entre 4 y 6 números.');
+        return;
+      }
+      localStorage.setItem('efician_owner_pin', newPin);
+      if (input) input.value = '';
+      showOwnerToast(`PIN actualizado correctamente a: ${newPin}`);
+    }
+
+    function showOwnerToast(msg) {
+      const toast = document.getElementById('owner-toast');
+      const text = document.getElementById('owner-toast-text');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[m]));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Configurar estado inicial
+      // Configurar estado inicial y motor de precios
+      initPricingEngine();
       updateCartBadge();
       updateCartTotals();
       applyCalculatedKwh(380);
+      updateOwnerBadges();
 
       // Iniciar animación Smart Grid Hero
       initHeroNetwork();
 
-      // Soporte teclado accesible (Escape cierra modales abiertos)
+      // Soporte teclado accesible (tecleo directo de PIN numérico y Escape para cerrar modales)
       window.addEventListener('keydown', (e) => {
+        const authBackdrop = document.getElementById('owner-auth-modal-backdrop');
+        const isAuthOpen = authBackdrop && !authBackdrop.classList.contains('modal-hidden');
+
+        if (isAuthOpen) {
+          if (e.key >= '0' && e.key <= '9') {
+            e.preventDefault();
+            handlePinKey(e.key);
+            return;
+          }
+          if (e.key === 'Backspace') {
+            e.preventDefault();
+            handlePinBackspace();
+            return;
+          }
+          if (e.key === 'Delete') {
+            e.preventDefault();
+            handlePinClear();
+            return;
+          }
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            closeOwnerAuthModal();
+            return;
+          }
+        }
+
         if (e.key === 'Escape') {
+          closeOwnerAuthModal();
+          toggleOwnerDrawer(false);
           closeOrderSuccess();
           closeCheckout();
           closeKitDetails();
